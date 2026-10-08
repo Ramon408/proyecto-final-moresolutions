@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planes de estudio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="app">
+    <nav class="menu">
+      <div class="menu-escuela">[NOMBRE DEL COLEGIO]</div>
+      <a href="inicio.html">Inicio</a>
+      <a href="planes.html" class="activo">Planes de estudio</a>
+      <a href="cursos.html">Cursos y asignaciones</a>
+      <a href="asistencia-docentes.html">Asistencia docente</a>
+      <a href="asistencia-alumnos.html">Asistencia alumnos</a>
+      <a href="calificaciones.html">Calificaciones</a>
+      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a href="index.html" class="salir">Cerrar sesión</a>
+    </nav>
+
+    <div class="contenido">
+      <header class="encabezado">
+        <h1>Planes de estudio</h1>
+        <div class="encabezado-acciones">
+          <button type="button" class="boton boton-oscuro">+ Nuevo plan</button>
+        </div>
+      </header>
+
+      <main class="columnas">
+        <div class="columna-lateral" style="width: 260px;">
+          <div class="subtitulo">Planes cargados</div>
+          <div class="item-lista activo"><b>Plan [NOMBRE] (vigente)</b><small>Res. [N.º] · desde [AÑO]</small></div>
+          <div class="item-lista"><b>Plan [NOMBRE ANTERIOR]</b><small>Res. [N.º] · inactivo</small></div>
+        </div>
+
+        <div class="columna-principal">
+          <div class="fila-entre">
+            <div class="fila">
+              <button type="button" class="boton boton-chico boton-oscuro">1.º año</button>
+              <button type="button" class="boton boton-chico">2.º año</button>
+              <button type="button" class="boton boton-chico">3.º año</button>
+              <button type="button" class="boton boton-chico">…</button>
+            </div>
+            <button type="button" class="boton">+ Agregar materia</button>
+          </div>
+
+          <table>
+            <thead>
+              <tr><th>Materia</th><th>Año</th><th>Carga horaria semanal</th><th>Acciones</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>[Materia 1]</td><td>1.º</td><td>[N] hs</td><td><a href="#">Editar</a> · <a href="#">Borrar</a></td></tr>
+              <tr><td>[Materia 2]</td><td>1.º</td><td>[N] hs</td><td><a href="#">Editar</a> · <a href="#">Borrar</a></td></tr>
+              <tr><td>[Materia 3]</td><td>1.º</td><td>[N] hs</td><td><a href="#">Editar</a> · <a href="#">Borrar</a></td></tr>
+              <tr><td>[Materia 4]</td><td>1.º</td><td>[N] hs</td><td><a href="#">Editar</a> · <a href="#">Borrar</a></td></tr>
+            </tbody>
+          </table>
+
+          <form class="caja-punteada">
+            <div class="subtitulo">Nueva materia (formulario)</div>
+            <div class="grilla-3">
+              <label class="campo">Nombre<input type="text" name="nombre"></label>
+              <label class="campo">Año<select name="anio"><option>1.º</option><option>2.º</option><option>3.º</option></select></label>
+              <label class="campo">Carga horaria<input type="number" name="carga_horaria" min="1"></label>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
