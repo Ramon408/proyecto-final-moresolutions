@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de administración (admin/admin)</title>
+</head>
+<body>
+  <h1>Panel de administración (admin/admin)</h1>
+  <p>Conectado como: admin · <a href="inicio.html">Volver al sistema</a> · <a href="index.html">Salir</a></p>
+  <hr>
+  <table>
+    <tr>
+      <td valign="top" width="200">
+        <b>Tablas</b>
+        <ul>
+      <li><a href="#">rol</a></li>
+      <li><a href="#">usuario</a></li>
+      <li><a href="#"><b>docente</b></a></li>
+      <li><a href="#">alumno</a></li>
+      <li><a href="#">plan_estudio</a></li>
+      <li><a href="#">materia</a></li>
+      <li><a href="#">curso</a></li>
+      <li><a href="#">dictado</a></li>
+      <li><a href="#">horario</a></li>
+      <li><a href="#">inscripcion</a></li>
+      <li><a href="#">clase</a></li>
+      <li><a href="#">asistencia_alumno</a></li>
+      <li><a href="#">asistencia_docente</a></li>
+      <li><a href="#">calificacion</a></li>
+        </ul>
+      </td>
+      <td valign="top">
+        <b>Tabla: docente ([N] registros)</b>
+        <table border="1" cellpadding="4" cellspacing="0">
+          <tr><th>id_docente</th><th>dni</th><th>nombre</th><th>apellido</th><th>email</th><th>telefono</th><th>id_usuario</th><th></th></tr>
+          <tr><td>1</td><td>[DNI]</td><td>[nombre]</td><td>[apellido]</td><td>[email]</td><td>[tel]</td><td>3</td><td><a href="#">editar</a> <a href="#">borrar</a></td></tr>
+          <tr><td>2</td><td>[DNI]</td><td>[nombre]</td><td>[apellido]</td><td>[email]</td><td>[tel]</td><td>4</td><td><a href="#">editar</a> <a href="#">borrar</a></td></tr>
+          <tr><td>3</td><td>[DNI]</td><td>[nombre]</td><td>[apellido]</td><td>[email]</td><td>[tel]</td><td>NULL</td><td><a href="#">editar</a> <a href="#">borrar</a></td></tr>
+        </table>
+        <p><b>Nuevo registro</b></p>
+        <form>
+          dni <input type="text" name="dni"><br>
+          nombre <input type="text" name="nombre"><br>
+          apellido <input type="text" name="apellido"><br>
+          email <input type="text" name="email"><br>
+          telefono <input type="text" name="telefono"><br>
+          id_usuario <input type="text" name="id_usuario"><br>
+          <button type="button">Guardar</button>
+        </form>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
