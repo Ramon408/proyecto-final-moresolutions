@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cursos y asignaciones</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="app">
+    <nav class="menu">
+      <div class="menu-escuela">[NOMBRE DEL COLEGIO]</div>
+      <a href="inicio.html">Inicio</a>
+      <a href="planes.html">Planes de estudio</a>
+      <a href="cursos.html" class="activo">Cursos y asignaciones</a>
+      <a href="asistencia-docentes.html">Asistencia docente</a>
+      <a href="asistencia-alumnos.html">Asistencia alumnos</a>
+      <a href="calificaciones.html">Calificaciones</a>
+      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a href="index.html" class="salir">Cerrar sesión</a>
+    </nav>
+
+    <div class="contenido">
+      <header class="encabezado">
+        <h1>Cursos y asignaciones</h1>
+        <div class="encabezado-acciones">
+          <label class="campo-linea">Ciclo lectivo<select><option>[AÑO]</option></select></label>
+          <button type="button" class="boton boton-oscuro">+ Nuevo curso</button>
+        </div>
+      </header>
+
+      <main class="columnas">
+        <div class="columna-lateral" style="width: 220px;">
+          <div class="subtitulo">Cursos</div>
+          <div class="item-lista activo"><b>1.º A</b> · mañana</div>
+          <div class="item-lista"><b>1.º B</b> · tarde</div>
+          <div class="item-lista"><b>2.º A</b> · mañana</div>
+          <div class="item-lista"><b>3.º A</b> · mañana</div>
+        </div>
+
+        <div class="columna-principal">
+          <div style="font-size: 16px;"><b>1.º A</b> · Plan [NOMBRE] · Turno mañana</div>
+
+          <div class="pestanas">
+            <button type="button" class="pestana activa">Materias y docentes</button>
+            <button type="button" class="pestana">Alumnos inscriptos</button>
+          </div>
+
+          <table>
+            <thead>
+              <tr><th>Materia</th><th>Docente asignado</th><th>Horario</th><th>Acciones</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>[Materia 1]</td><td>[Apellido, Nombre]</td><td>Lun 8:00–9:20 · Mié 10:00–11:20</td><td><a href="#">Cambiar docente</a> · <a href="#">Horario</a></td></tr>
+              <tr><td>[Materia 2]</td><td>[Apellido, Nombre]</td><td>Mar 8:00–9:20</td><td><a href="#">Cambiar docente</a> · <a href="#">Horario</a></td></tr>
+              <tr><td>[Materia 3]</td><td><i>Sin asignar</i></td><td>—</td><td><a href="#">Asignar docente</a></td></tr>
+            </tbody>
+          </table>
+
+          <div class="subtitulo" style="margin-top: 8px;">Vista de la otra pestaña: alumnos inscriptos</div>
+          <div class="fila" style="align-items: flex-start; gap: 12px;">
+            <table style="width: 60%;">
+              <thead>
+                <tr><th>DNI</th><th>Alumno</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>[DNI]</td><td>[Apellido], Mario</td><td>Regular</td></tr>
+                <tr><td>[DNI]</td><td>[Apellido], Lucas</td><td>Regular</td></tr>
+              </tbody>
+            </table>
+            <button type="button" class="boton">+ Inscribir alumno</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
