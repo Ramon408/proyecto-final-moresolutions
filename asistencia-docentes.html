@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asistencia del personal docente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="app">
+    <nav class="menu">
+      <div class="menu-escuela">[NOMBRE DEL COLEGIO]</div>
+      <a href="inicio.html">Inicio</a>
+      <a href="planes.html">Planes de estudio</a>
+      <a href="cursos.html">Cursos y asignaciones</a>
+      <a href="asistencia-docentes.html" class="activo">Asistencia docente</a>
+      <a href="asistencia-alumnos.html">Asistencia alumnos</a>
+      <a href="calificaciones.html">Calificaciones</a>
+      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a href="index.html" class="salir">Cerrar sesión</a>
+    </nav>
+
+    <div class="contenido">
+      <header class="encabezado">
+        <h1>Asistencia del personal docente</h1>
+        <div class="encabezado-acciones">
+          <button type="button" class="boton">Resumen mensual</button>
+        </div>
+      </header>
+
+      <main>
+        <form class="caja">
+          <div class="subtitulo" style="font-size: 16px;">Registrar</div>
+          <div class="grilla-5">
+            <label class="campo">Docente<select name="id_docente"><option>Buscar por DNI o apellido…</option></select></label>
+            <label class="campo">Fecha<input type="date" name="fecha"></label>
+            <label class="campo">Hora de entrada<input type="time" name="hora_entrada"></label>
+            <label class="campo">Hora de salida<input type="time" name="hora_salida"></label>
+            <label class="campo">Observación<input type="text" name="observacion"></label>
+          </div>
+          <div class="fila">
+            <button type="button" class="boton boton-oscuro">Registrar entrada</button>
+            <button type="button" class="boton">Registrar salida</button>
+          </div>
+        </form>
+
+        <div class="fila-entre">
+          <div class="subtitulo" style="font-size: 16px;">Registros del día</div>
+          <div class="fila">
+            <label class="campo-linea">Desde<input type="date"></label>
+            <label class="campo-linea">Hasta<input type="date"></label>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Docente</th><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Observación</th><th>Acciones</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>[Apellido, Nombre]</td><td>[FECHA]</td><td>07:45</td><td>12:30</td><td>—</td><td><a href="#">Editar</a></td></tr>
+            <tr><td>[Apellido, Nombre]</td><td>[FECHA]</td><td>08:10</td><td>—</td><td>Llegó tarde</td><td><a href="#">Editar</a></td></tr>
+            <tr><td>[Apellido, Nombre]</td><td>[FECHA]</td><td>—</td><td>—</td><td>Ausente con aviso</td><td><a href="#">Editar</a></td></tr>
+          </tbody>
+        </table>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
