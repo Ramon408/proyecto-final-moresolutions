@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="app">
+    
+    <nav class="menu">
+      <div class="menu-escuela">[NOMBRE DEL COLEGIO]</div>
+      <a href="inicio.html" class="activo">Inicio</a>
+      <a href="planes.html">Planes de estudio</a>
+      <a href="cursos.html">Cursos y asignaciones</a>
+      <a href="asistencia-docentes.html">Asistencia docente</a>
+      <a href="asistencia-alumnos.html">Asistencia alumnos</a>
+      <a href="calificaciones.html">Calificaciones</a>
+      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a href="index.html" class="salir">Cerrar sesión</a>
+    </nav>
+
+    <div class="contenido">
+      <header class="encabezado">
+        <h1>Inicio</h1>
+        <div class="encabezado-acciones">
+          Usuario: [nombre] · Rol: preceptor
+        </div>
+      </header>
+
+      <main>
+        <div style="font-size: 17px;">Ciclo lectivo [AÑO] · Hoy: [FECHA]</div>
+        <div class="tarjetas">
+          <a href="asistencia-docentes.html" class="tarjeta">
+            <h2>Asistencia docente</h2>
+            <p>Registrar entrada y salida de hoy</p>
+            <span class="dato">Presentes hoy: [N] de [N]</span>
+          </a>
+          <a href="asistencia-alumnos.html" class="tarjeta">
+            <h2>Tomar asistencia</h2>
+            <p>Elegir curso, materia y marcar la lista</p>
+            <span class="dato">Clases sin lista hoy: [N]</span>
+          </a>
+          <a href="calificaciones.html" class="tarjeta">
+            <h2>Cargar notas</h2>
+            <p>Calificaciones por materia y trimestre</p>
+            <span class="dato">Instancia actual: [TRIMESTRE]</span>
+          </a>
+          <a href="planes.html" class="tarjeta">
+            <h2>Planes de estudio</h2>
+            <p>Materias de cada año del plan</p>
+          </a>
+          <a href="cursos.html" class="tarjeta">
+            <h2>Cursos</h2>
+            <p>Docentes por materia y alumnos inscriptos</p>
+          </a>
+          <a href="admin-bd.html" class="tarjeta admin">
+            <h2>Admin BD</h2>
+            <p>Ver y editar todas las tablas (admin/admin)</p>
+          </a>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
