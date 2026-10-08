@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toma de asistencia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="app">
+    <nav class="menu">
+      <div class="menu-escuela">[NOMBRE DEL COLEGIO]</div>
+      <a href="inicio.html">Inicio</a>
+      <a href="planes.html">Planes de estudio</a>
+      <a href="cursos.html">Cursos y asignaciones</a>
+      <a href="asistencia-docentes.html">Asistencia docente</a>
+      <a href="asistencia-alumnos.html" class="activo">Asistencia alumnos</a>
+      <a href="calificaciones.html">Calificaciones</a>
+      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a href="index.html" class="salir">Cerrar sesión</a>
+    </nav>
+
+    <div class="contenido">
+      <header class="encabezado">
+        <h1>Toma de asistencia</h1>
+        <div class="encabezado-acciones">
+          <button type="button" class="boton">Ver % por alumno</button>
+        </div>
+      </header>
+
+      <main>
+        <div class="grilla-4">
+          <label class="campo">Curso<select name="id_curso"><option>1.º A</option></select></label>
+          <label class="campo">Materia<select name="id_dictado"><option>[Materia 1]</option></select></label>
+          <label class="campo">Fecha de la clase<input type="date" name="fecha"></label>
+          <label class="campo">Tema dado<input type="text" name="tema"></label>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Alumno</th><th>Presente</th><th>Ausente</th><th>Tarde</th><th>Justificado</th><th>% asistencia acumulada</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>[Apellido], Mario</td><td><input type="radio" name="alumno1" value="P" aria-label="Presente" checked></td><td><input type="radio" name="alumno1" value="A" aria-label="Ausente"></td><td><input type="radio" name="alumno1" value="T" aria-label="Tarde"></td><td><input type="radio" name="alumno1" value="J" aria-label="Justificado"></td><td>[N] %</td></tr>
+            <tr><td>[Apellido], Lucas</td><td><input type="radio" name="alumno2" value="P" aria-label="Presente"></td><td><input type="radio" name="alumno2" value="A" aria-label="Ausente" checked></td><td><input type="radio" name="alumno2" value="T" aria-label="Tarde"></td><td><input type="radio" name="alumno2" value="J" aria-label="Justificado"></td><td>[N] %</td></tr>
+            <tr><td>[Apellido, Nombre]</td><td><input type="radio" name="alumno3" value="P" aria-label="Presente" checked></td><td><input type="radio" name="alumno3" value="A" aria-label="Ausente"></td><td><input type="radio" name="alumno3" value="T" aria-label="Tarde"></td><td><input type="radio" name="alumno3" value="J" aria-label="Justificado"></td><td>[N] %</td></tr>
+            <tr><td>[Apellido, Nombre]</td><td><input type="radio" name="alumno4" value="P" aria-label="Presente"></td><td><input type="radio" name="alumno4" value="A" aria-label="Ausente"></td><td><input type="radio" name="alumno4" value="T" aria-label="Tarde" checked></td><td><input type="radio" name="alumno4" value="J" aria-label="Justificado"></td><td>[N] %</td></tr>
+          </tbody>
+        </table>
+
+        <div class="fila">
+          <button type="button" class="boton" style="font-weight: 400;">Marcar todos presentes</button>
+          <button type="button" class="boton boton-oscuro">Guardar lista</button>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
