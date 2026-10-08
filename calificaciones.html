@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carga de calificaciones</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="app">
+    <nav class="menu">
+      <div class="menu-escuela">[NOMBRE DEL COLEGIO]</div>
+      <a href="inicio.html">Inicio</a>
+      <a href="planes.html">Planes de estudio</a>
+      <a href="cursos.html">Cursos y asignaciones</a>
+      <a href="asistencia-docentes.html">Asistencia docente</a>
+      <a href="asistencia-alumnos.html">Asistencia alumnos</a>
+      <a href="calificaciones.html" class="activo">Calificaciones</a>
+      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a href="index.html" class="salir">Cerrar sesión</a>
+    </nav>
+
+    <div class="contenido">
+      <header class="encabezado">
+        <h1>Carga de calificaciones</h1>
+        <div class="encabezado-acciones">
+          <button type="button" class="boton">Imprimir boletín</button>
+        </div>
+      </header>
+
+      <main>
+        <div class="grilla-3">
+          <label class="campo">Curso<select name="id_curso"><option>1.º A</option></select></label>
+          <label class="campo">Materia (solo las que dicta el docente)<select name="id_dictado"><option>[Materia 1]</option></select></label>
+          <label class="campo">Docente<input type="text" value="[Apellido, Nombre]" readonly></label>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Alumno</th><th>1.º trimestre</th><th>2.º trimestre</th><th>3.º trimestre</th><th>Promedio (calculado)</th><th>Condición</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>[Apellido], Mario</td><td><input type="number" class="nota" min="1" max="10" aria-label="Nota 1.º trimestre"></td><td><input type="number" class="nota" min="1" max="10" aria-label="Nota 2.º trimestre"></td><td><input type="number" class="nota" min="1" max="10" aria-label="Nota 3.º trimestre"></td><td>[N]</td><td>[Aprobado / A recuperar]</td></tr>
+            <tr><td>[Apellido], Lucas</td><td><input type="number" class="nota" min="1" max="10" aria-label="Nota 1.º trimestre"></td><td><input type="number" class="nota" min="1" max="10" aria-label="Nota 2.º trimestre"></td><td><input type="number" class="nota" min="1" max="10" aria-label="Nota 3.º trimestre"></td><td>[N]</td><td>[Aprobado / A recuperar]</td></tr>
+            <tr><td>[Apellido, Nombre]</td><td><input type="number" class="nota" min="1" max="10" aria-label="Nota 1.º trimestre"></td><td><input type="number" class="nota" min="1" max="10" aria-label="Nota 2.º trimestre"></td><td><input type="number" class="nota" min="1" max="10" aria-label="Nota 3.º trimestre"></td><td>[N]</td><td>[Aprobado / A recuperar]</td></tr>
+          </tbody>
+        </table>
+
+        <div class="fila">
+          <button type="button" class="boton boton-oscuro">Guardar notas</button>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
