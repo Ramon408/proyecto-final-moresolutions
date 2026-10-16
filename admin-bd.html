@@ -2,53 +2,142 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de administración (admin/admin)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de administración de la base de datos</title>
 </head>
 <body>
-  <h1>Panel de administración (admin/admin)</h1>
-  <p>Conectado como: admin · <a href="inicio.html">Volver al sistema</a> · <a href="index.html">Salir</a></p>
-  <hr>
-  <table>
-    <tr>
-      <td valign="top" width="200">
-        <b>Tablas</b>
-        <ul>
-      <li><a href="#">rol</a></li>
-      <li><a href="#">usuario</a></li>
-      <li><a href="#"><b>docente</b></a></li>
-      <li><a href="#">alumno</a></li>
-      <li><a href="#">plan_estudio</a></li>
-      <li><a href="#">materia</a></li>
-      <li><a href="#">curso</a></li>
-      <li><a href="#">dictado</a></li>
-      <li><a href="#">horario</a></li>
-      <li><a href="#">inscripcion</a></li>
-      <li><a href="#">clase</a></li>
-      <li><a href="#">asistencia_alumno</a></li>
-      <li><a href="#">asistencia_docente</a></li>
-      <li><a href="#">calificacion</a></li>
-        </ul>
-      </td>
-      <td valign="top">
-        <b>Tabla: docente ([N] registros)</b>
-        <table border="1" cellpadding="4" cellspacing="0">
-          <tr><th>id_docente</th><th>dni</th><th>nombre</th><th>apellido</th><th>email</th><th>telefono</th><th>id_usuario</th><th></th></tr>
-          <tr><td>1</td><td>[DNI]</td><td>[nombre]</td><td>[apellido]</td><td>[email]</td><td>[tel]</td><td>3</td><td><a href="#">editar</a> <a href="#">borrar</a></td></tr>
-          <tr><td>2</td><td>[DNI]</td><td>[nombre]</td><td>[apellido]</td><td>[email]</td><td>[tel]</td><td>4</td><td><a href="#">editar</a> <a href="#">borrar</a></td></tr>
-          <tr><td>3</td><td>[DNI]</td><td>[nombre]</td><td>[apellido]</td><td>[email]</td><td>[tel]</td><td>NULL</td><td><a href="#">editar</a> <a href="#">borrar</a></td></tr>
-        </table>
-        <p><b>Nuevo registro</b></p>
-        <form>
-          dni <input type="text" name="dni"><br>
-          nombre <input type="text" name="nombre"><br>
-          apellido <input type="text" name="apellido"><br>
-          email <input type="text" name="email"><br>
-          telefono <input type="text" name="telefono"><br>
-          id_usuario <input type="text" name="id_usuario"><br>
-          <button type="button">Guardar</button>
-        </form>
-      </td>
-    </tr>
-  </table>
+  <h1>Panel de administración de la base de datos</h1>
+
+  <form id="form-acceso">
+    <p>Ingresá con el usuario de administración.</p>
+    <p><label>Usuario <input type="text" name="usuario" autocomplete="username"></label></p>
+    <p><label>Contraseña <input type="password" name="password" autocomplete="current-password"></label></p>
+    <p><button type="submit">Entrar</button> <a href="inicio.html">Volver al sistema</a></p>
+    <p id="error-acceso" hidden><b>Usuario o contraseña incorrectos.</b></p>
+  </form>
+
+  <div id="panel" hidden>
+    <p>Conectado como: admin · <a href="inicio.html">Volver al sistema</a> · <a href="admin-bd.html">Salir</a></p>
+    <hr>
+    <table>
+      <tr>
+        <td valign="top" width="200">
+          <b>Tablas</b>
+          <ul id="lista-tablas"></ul>
+        </td>
+        <td valign="top">
+          <p><b id="titulo-tabla"></b></p>
+          <table border="1" cellpadding="4" cellspacing="0" id="tabla-datos"></table>
+          <p><b id="titulo-form">Nuevo registro</b></p>
+          <form id="form-registro"></form>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    const tablas = {
+      rol: { columnas: ['id_rol', 'nombre'], filas: [[1, 'administrador'], [2, 'directivo'], [3, 'preceptor'], [4, 'docente']] },
+      usuario: { columnas: ['id_usuario', 'username', 'password_hash', 'id_rol', 'activo'], filas: [[1, 'admin', '$2b$10$…', 1, 1], [2, 'lfernandez', '$2b$10$…', 2, 1], [3, 'gperalta', '$2b$10$…', 4, 1], [4, 'nsosa', '$2b$10$…', 3, 1]] },
+      docente: { columnas: ['id_docente', 'dni', 'nombre', 'apellido', 'email', 'telefono', 'id_usuario'], filas: [[1, '28123456', 'Gustavo', 'Peralta', 'gperalta@escuela.edu.ar', '11-4555-1234', 3], [2, '30234567', 'Carolina', 'Ríos', 'crios@escuela.edu.ar', '11-4555-2345', 'NULL'], [3, '27345678', 'Ana', 'Medina', '', '', 'NULL']] },
+      alumno: { columnas: ['id_alumno', 'dni', 'nombre', 'apellido', 'fecha_nac', 'email', 'id_usuario'], filas: [[1, '47123456', 'Mario', 'Acosta', '2013-03-14', '', 'NULL'], [2, '47234567', 'Lucas', 'Benítez', '2013-07-02', '', 'NULL'], [3, '47345678', 'Sofía', 'Castro', '2013-11-21', '', 'NULL']] },
+      plan_estudio: { columnas: ['id_plan', 'nombre', 'resolucion', 'anio_vigencia', 'activo'], filas: [[1, 'Plan Técnico 2026', '1234/25', 2026, 1], [2, 'Plan Técnico 2018', '0567/17', 2018, 0]] },
+      materia: { columnas: ['id_materia', 'id_plan', 'nombre', 'anio', 'carga_horaria'], filas: [[1, 1, 'Matemática', 1, 5], [2, 1, 'Lengua y Literatura', 1, 4], [3, 1, 'Taller', 1, 6]] },
+      curso: { columnas: ['id_curso', 'id_plan', 'anio', 'division', 'turno', 'ciclo_lectivo'], filas: [[1, 1, 1, 'A', 'mañana', 2026], [2, 1, 1, 'B', 'tarde', 2026]] },
+      dictado: { columnas: ['id_dictado', 'id_curso', 'id_materia', 'id_docente'], filas: [[1, 1, 1, 1], [2, 1, 2, 3], [3, 1, 3, 2]] },
+      horario: { columnas: ['id_horario', 'id_dictado', 'dia_semana', 'hora_inicio', 'hora_fin'], filas: [[1, 1, 1, '07:30', '09:30'], [2, 1, 3, '07:30', '08:50']] },
+      inscripcion: { columnas: ['id_inscripcion', 'id_alumno', 'id_curso', 'fecha', 'estado'], filas: [[1, 1, 1, '2026-02-20', 'regular'], [2, 2, 1, '2026-02-20', 'regular'], [3, 3, 1, '2026-02-21', 'regular']] },
+      clase: { columnas: ['id_clase', 'id_dictado', 'fecha', 'tema'], filas: [[1, 1, '2026-10-14', 'Ecuaciones de primer grado']] },
+      asistencia_alumno: { columnas: ['id_asist_alu', 'id_clase', 'id_alumno', 'estado'], filas: [[1, 1, 1, 'P'], [2, 1, 2, 'A'], [3, 1, 3, 'P']] },
+      asistencia_docente: { columnas: ['id_asist_doc', 'id_docente', 'fecha', 'hora_entrada', 'hora_salida', 'observacion'], filas: [[1, 1, '2026-10-14', '07:20', '12:30', ''], [2, 3, '2026-10-14', '07:45', '', 'Llegó tarde']] },
+      calificacion: { columnas: ['id_calificacion', 'id_alumno', 'id_dictado', 'instancia', 'nota', 'fecha'], filas: [[1, 1, 1, '1.º trimestre', 8, '2026-05-29'], [2, 2, 1, '1.º trimestre', 5, '2026-05-29']] },
+    };
+
+    let tablaActual = 'docente';
+    let filaEditando = null;
+
+    const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    document.getElementById('form-acceso').addEventListener('submit', e => {
+      e.preventDefault();
+      const f = e.target;
+      if (f.usuario.value === 'admin' && f.password.value === 'admin') {
+        f.hidden = true;
+        document.getElementById('panel').hidden = false;
+        dibujarLista();
+        dibujarTabla();
+      } else {
+        document.getElementById('error-acceso').hidden = false;
+      }
+    });
+
+    function dibujarLista() {
+      document.getElementById('lista-tablas').innerHTML = Object.keys(tablas).map(t =>
+        `<li><a href="#" data-tabla="${t}">${t === tablaActual ? '<b>' + t + '</b>' : t}</a></li>`).join('');
+    }
+
+    function dibujarTabla() {
+      const t = tablas[tablaActual];
+      document.getElementById('titulo-tabla').textContent = `Tabla: ${tablaActual} (${t.filas.length} registros)`;
+      const cabecera = '<tr>' + t.columnas.map(c => `<th>${c}</th>`).join('') + '<th></th></tr>';
+      const filas = t.filas.map((f, i) => '<tr>' + f.map(v => `<td>${esc(v)}</td>`).join('') +
+        `<td><a href="#" data-editar="${i}">editar</a> <a href="#" data-borrar="${i}">borrar</a></td></tr>`).join('');
+      document.getElementById('tabla-datos').innerHTML = cabecera + filas;
+      dibujarFormulario();
+    }
+
+    function dibujarFormulario(valores) {
+      const t = tablas[tablaActual];
+      document.getElementById('titulo-form').textContent = valores ? 'Editar registro' : 'Nuevo registro';
+      const campos = t.columnas.slice(1).map((c, i) =>
+        `${c} <input type="text" name="${c}" value="${valores ? esc(valores[i + 1]) : ''}"><br>`).join('');
+      document.getElementById('form-registro').innerHTML = campos +
+        '<button type="submit">Guardar</button>' + (valores ? ' <button type="button" id="cancelar">Cancelar</button>' : '');
+    }
+
+    document.getElementById('lista-tablas').addEventListener('click', e => {
+      const t = e.target.closest('[data-tabla]');
+      if (!t) return;
+      e.preventDefault();
+      tablaActual = t.dataset.tabla;
+      filaEditando = null;
+      dibujarLista();
+      dibujarTabla();
+    });
+
+    document.getElementById('tabla-datos').addEventListener('click', e => {
+      const t = tablas[tablaActual];
+      if (e.target.dataset.borrar !== undefined) {
+        e.preventDefault();
+        if (confirm('¿Borrar este registro?')) {
+          t.filas.splice(Number(e.target.dataset.borrar), 1);
+          dibujarTabla();
+        }
+      }
+      if (e.target.dataset.editar !== undefined) {
+        e.preventDefault();
+        filaEditando = Number(e.target.dataset.editar);
+        dibujarFormulario(t.filas[filaEditando]);
+      }
+    });
+
+    document.getElementById('form-registro').addEventListener('click', e => {
+      if (e.target.id === 'cancelar') { filaEditando = null; dibujarFormulario(); }
+    });
+
+    document.getElementById('form-registro').addEventListener('submit', e => {
+      e.preventDefault();
+      const t = tablas[tablaActual];
+      const valores = t.columnas.slice(1).map(c => e.target[c].value.trim());
+      if (filaEditando !== null) {
+        t.filas[filaEditando] = [t.filas[filaEditando][0], ...valores];
+        filaEditando = null;
+      } else {
+        const nuevoId = t.filas.reduce((max, f) => Math.max(max, Number(f[0])), 0) + 1;
+        t.filas.push([nuevoId, ...valores]);
+      }
+      dibujarTabla();
+    });
+  </script>
 </body>
 </html>

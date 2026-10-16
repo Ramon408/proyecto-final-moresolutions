@@ -7,13 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilos.css">
+  <script src="app.js" defer></script>
 </head>
-<body>
+<body data-pagina="planes">
   <div class="app">
-    <nav class="menu">
-      <div class="menu-escuela">[NOMBRE DEL COLEGIO]</div>
+    <nav class="menu" aria-label="Menú principal">
+      <div class="menu-escuela">Escuela Técnica N.º 4</div>
       <a href="inicio.html">Inicio</a>
-      <a href="planes.html" class="activo">Planes de estudio</a>
+      <a href="planes.html" class="activo" aria-current="page">Planes de estudio</a>
       <a href="cursos.html">Cursos y asignaciones</a>
       <a href="asistencia-docentes.html">Asistencia docente</a>
       <a href="asistencia-alumnos.html">Asistencia alumnos</a>
@@ -26,48 +27,91 @@
       <header class="encabezado">
         <h1>Planes de estudio</h1>
         <div class="encabezado-acciones">
-          <button type="button" class="boton boton-oscuro">+ Nuevo plan</button>
+          <button type="button" class="boton boton-oscuro" id="btn-nuevo-plan">+ Nuevo plan</button>
         </div>
       </header>
 
       <main class="columnas">
         <div class="columna-lateral" style="width: 260px;">
           <div class="subtitulo">Planes cargados</div>
-          <div class="item-lista activo"><b>Plan [NOMBRE] (vigente)</b><small>Res. [N.º] · desde [AÑO]</small></div>
-          <div class="item-lista"><b>Plan [NOMBRE ANTERIOR]</b><small>Res. [N.º] · inactivo</small></div>
+          <div id="lista-planes" class="columna-lateral" style="width: 100%;">
+            <button type="button" class="item-lista item-plan activo"><b>Plan Técnico 2026 (vigente)</b><small>Res. 1234/25 · desde 2026</small></button>
+            <button type="button" class="item-lista item-plan"><b>Plan Técnico 2018</b><small>Res. 0567/17 · inactivo</small></button>
+          </div>
+
+          <form class="caja-punteada oculto" id="form-plan">
+            <div class="subtitulo">Nuevo plan</div>
+            <label class="campo">Nombre<input type="text" name="nombre" required></label>
+            <label class="campo">Resolución<input type="text" name="resolucion"></label>
+            <label class="campo">Vigente desde<input type="number" name="anio_vigencia" min="2000" max="2100" value="2026"></label>
+            <div class="fila">
+              <button type="submit" class="boton boton-oscuro">Guardar</button>
+              <button type="button" class="boton" id="btn-cancelar-plan">Cancelar</button>
+            </div>
+          </form>
         </div>
 
         <div class="columna-principal">
+          <p class="mensaje oculto" id="mensaje-planes" role="status"></p>
+          <div class="fila" role="group" aria-label="Filtrar por año">
+              <button type="button" class="boton boton-chico filtro-anio" data-anio="1">1.º año</button>
+              <button type="button" class="boton boton-chico filtro-anio" data-anio="2">2.º año</button>
+              <button type="button" class="boton boton-chico filtro-anio" data-anio="3">3.º año</button>
+              <button type="button" class="boton boton-chico filtro-anio" data-anio="4">4.º año</button>
+              <button type="button" class="boton boton-chico filtro-anio" data-anio="5">5.º año</button>
+              <button type="button" class="boton boton-chico filtro-anio" data-anio="6">6.º año</button>
+              <button type="button" class="boton boton-chico filtro-anio" data-anio="7">7.º año</button>
+          </div>
           <div class="fila-entre">
-            <div class="fila">
-              <button type="button" class="boton boton-chico boton-oscuro">1.º año</button>
-              <button type="button" class="boton boton-chico">2.º año</button>
-              <button type="button" class="boton boton-chico">3.º año</button>
-              <button type="button" class="boton boton-chico">…</button>
-            </div>
-            <button type="button" class="boton">+ Agregar materia</button>
+            <div class="subtitulo" id="titulo-anio">Materias de 1.º año</div>
+            <button type="button" class="boton" id="btn-agregar-materia">+ Agregar materia</button>
           </div>
 
-          <table>
-            <thead>
-              <tr><th>Materia</th><th>Año</th><th>Carga horaria semanal</th><th>Acciones</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>[Materia 1]</td><td>1.º</td><td>[N] hs</td><td><a href="#">Editar</a> · <a href="#">Borrar</a></td></tr>
-              <tr><td>[Materia 2]</td><td>1.º</td><td>[N] hs</td><td><a href="#">Editar</a> · <a href="#">Borrar</a></td></tr>
-              <tr><td>[Materia 3]</td><td>1.º</td><td>[N] hs</td><td><a href="#">Editar</a> · <a href="#">Borrar</a></td></tr>
-              <tr><td>[Materia 4]</td><td>1.º</td><td>[N] hs</td><td><a href="#">Editar</a> · <a href="#">Borrar</a></td></tr>
-            </tbody>
-          </table>
-
-          <form class="caja-punteada">
-            <div class="subtitulo">Nueva materia (formulario)</div>
+          <form class="caja-punteada oculto" id="form-materia">
+            <div class="subtitulo" id="titulo-form-materia">Nueva materia</div>
             <div class="grilla-3">
-              <label class="campo">Nombre<input type="text" name="nombre"></label>
-              <label class="campo">Año<select name="anio"><option>1.º</option><option>2.º</option><option>3.º</option></select></label>
-              <label class="campo">Carga horaria<input type="number" name="carga_horaria" min="1"></label>
+              <label class="campo">Nombre<input type="text" name="nombre" required></label>
+              <label class="campo">Año<select name="anio"><option value="1">1.º</option><option value="2">2.º</option><option value="3">3.º</option><option value="4">4.º</option><option value="5">5.º</option><option value="6">6.º</option><option value="7">7.º</option></select></label>
+              <label class="campo">Carga horaria semanal (hs)<input type="number" name="carga_horaria" min="1" max="20" required></label>
+            </div>
+            <div class="fila">
+              <button type="submit" class="boton boton-oscuro">Guardar</button>
+              <button type="button" class="boton" id="btn-cancelar-materia">Cancelar</button>
             </div>
           </form>
+
+          <div class="tabla-scroll">
+            <table id="tabla-materias">
+              <thead>
+                <tr><th>Materia</th><th>Año</th><th>Carga horaria semanal</th><th>Acciones</th></tr>
+              </thead>
+              <tbody>
+                <tr data-anio="1"><td>Matemática</td><td>1.º</td><td>5 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="1"><td>Lengua y Literatura</td><td>1.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="1"><td>Ciencias Naturales</td><td>1.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="1"><td>Taller</td><td>1.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="2"><td>Matemática</td><td>2.º</td><td>5 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="2"><td>Física</td><td>2.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="2"><td>Dibujo Técnico</td><td>2.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="2"><td>Taller</td><td>2.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="3"><td>Matemática</td><td>3.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="3"><td>Química</td><td>3.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="3"><td>Inglés</td><td>3.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="3"><td>Taller</td><td>3.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="4"><td>Matemática</td><td>4.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="4"><td>Electrotecnia</td><td>4.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="4"><td>Programación</td><td>4.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="5"><td>Análisis Matemático</td><td>5.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="5"><td>Sistemas Digitales</td><td>5.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="5"><td>Laboratorio</td><td>5.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="6"><td>Proyecto</td><td>6.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="6"><td>Redes</td><td>6.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="6"><td>Laboratorio</td><td>6.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="7"><td>Prácticas Profesionalizantes</td><td>7.º</td><td>8 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+                <tr data-anio="7"><td>Gestión de Proyectos</td><td>7.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </div>

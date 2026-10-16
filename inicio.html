@@ -7,13 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilos.css">
+  <script src="app.js" defer></script>
 </head>
-<body>
+<body data-pagina="inicio">
   <div class="app">
-    
-    <nav class="menu">
-      <div class="menu-escuela">[NOMBRE DEL COLEGIO]</div>
-      <a href="inicio.html" class="activo">Inicio</a>
+    <nav class="menu" aria-label="Menú principal">
+      <div class="menu-escuela">Escuela Técnica N.º 4</div>
+      <a href="inicio.html" class="activo" aria-current="page">Inicio</a>
       <a href="planes.html">Planes de estudio</a>
       <a href="cursos.html">Cursos y asignaciones</a>
       <a href="asistencia-docentes.html">Asistencia docente</a>
@@ -27,27 +27,27 @@
       <header class="encabezado">
         <h1>Inicio</h1>
         <div class="encabezado-acciones">
-          Usuario: [nombre] · Rol: preceptor
+          Natalia Sosa · Preceptora
         </div>
       </header>
 
       <main>
-        <div style="font-size: 17px;">Ciclo lectivo [AÑO] · Hoy: [FECHA]</div>
+        <p style="margin: 0; font-size: 17px;">Ciclo lectivo <span id="ciclo"></span> · Hoy es <span id="hoy"></span></p>
         <div class="tarjetas">
           <a href="asistencia-docentes.html" class="tarjeta">
             <h2>Asistencia docente</h2>
             <p>Registrar entrada y salida de hoy</p>
-            <span class="dato">Presentes hoy: [N] de [N]</span>
+            <span class="dato">Presentes hoy: 18 de 22</span>
           </a>
           <a href="asistencia-alumnos.html" class="tarjeta">
             <h2>Tomar asistencia</h2>
             <p>Elegir curso, materia y marcar la lista</p>
-            <span class="dato">Clases sin lista hoy: [N]</span>
+            <span class="dato">Clases sin lista hoy: 3</span>
           </a>
           <a href="calificaciones.html" class="tarjeta">
             <h2>Cargar notas</h2>
             <p>Calificaciones por materia y trimestre</p>
-            <span class="dato">Instancia actual: [TRIMESTRE]</span>
+            <span class="dato">Instancia actual: 3.º trimestre</span>
           </a>
           <a href="planes.html" class="tarjeta">
             <h2>Planes de estudio</h2>
@@ -59,7 +59,7 @@
           </a>
           <a href="admin-bd.html" class="tarjeta admin">
             <h2>Admin BD</h2>
-            <p>Ver y editar todas las tablas (admin/admin)</p>
+            <p>Ver y editar todas las tablas de la base de datos</p>
           </a>
         </div>
       </main>

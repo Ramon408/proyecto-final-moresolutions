@@ -7,23 +7,26 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilos.css">
+  <script src="app.js" defer></script>
 </head>
-<body>
+<body data-pagina="login">
   <div class="pantalla-login">
-    <form class="login" action="inicio.html">
+    <form class="login" id="form-login" novalidate>
       <div>
-        <div class="login-escuela">[NOMBRE DEL COLEGIO]</div>
+        <div class="login-escuela">ESCUELA TÉCNICA N.º 4</div>
         <h1>Ingresar</h1>
       </div>
+      <p class="mensaje error oculto" id="mensaje-login" role="alert"></p>
       <label class="campo">Usuario
-        <input type="text" name="usuario" placeholder="usuario">
+        <input type="text" name="usuario" autocomplete="username" required>
       </label>
       <label class="campo">Contraseña
-        <input type="password" name="password" placeholder="••••••">
+        <input type="password" name="password" autocomplete="current-password" required>
       </label>
       <button type="submit" class="boton boton-oscuro">Ingresar</button>
-      <p class="nota-al-pie">Según el rol del usuario (administrador, directivo, preceptor o docente) se habilitan distintos módulos.</p>
+      <p class="nota-al-pie">Según tu rol (administrador, directivo, preceptor o docente) vas a ver distintos módulos.</p>
     </form>
   </div>
 </body>
 </html>
+

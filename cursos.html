@@ -7,14 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilos.css">
+  <script src="app.js" defer></script>
 </head>
-<body>
+<body data-pagina="cursos">
   <div class="app">
-    <nav class="menu">
-      <div class="menu-escuela">[NOMBRE DEL COLEGIO]</div>
+    <nav class="menu" aria-label="Menú principal">
+      <div class="menu-escuela">Escuela Técnica N.º 4</div>
       <a href="inicio.html">Inicio</a>
       <a href="planes.html">Planes de estudio</a>
-      <a href="cursos.html" class="activo">Cursos y asignaciones</a>
+      <a href="cursos.html" class="activo" aria-current="page">Cursos y asignaciones</a>
       <a href="asistencia-docentes.html">Asistencia docente</a>
       <a href="asistencia-alumnos.html">Asistencia alumnos</a>
       <a href="calificaciones.html">Calificaciones</a>
@@ -26,52 +27,70 @@
       <header class="encabezado">
         <h1>Cursos y asignaciones</h1>
         <div class="encabezado-acciones">
-          <label class="campo-linea">Ciclo lectivo<select><option>[AÑO]</option></select></label>
-          <button type="button" class="boton boton-oscuro">+ Nuevo curso</button>
+          <label class="campo-linea">Ciclo lectivo<select><option>2026</option><option>2025</option></select></label>
+          <button type="button" class="boton boton-oscuro" id="btn-nuevo-curso">+ Nuevo curso</button>
         </div>
       </header>
 
       <main class="columnas">
         <div class="columna-lateral" style="width: 220px;">
           <div class="subtitulo">Cursos</div>
-          <div class="item-lista activo"><b>1.º A</b> · mañana</div>
-          <div class="item-lista"><b>1.º B</b> · tarde</div>
-          <div class="item-lista"><b>2.º A</b> · mañana</div>
-          <div class="item-lista"><b>3.º A</b> · mañana</div>
+          <div id="lista-cursos" class="columna-lateral" style="width: 100%;"></div>
+
+          <form class="caja-punteada oculto" id="form-curso">
+            <div class="subtitulo">Nuevo curso</div>
+            <label class="campo">Año<select name="anio"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option></select></label>
+            <label class="campo">División<select name="division"><option>A</option><option>B</option><option>C</option></select></label>
+            <label class="campo">Turno<select name="turno"><option>Mañana</option><option>Tarde</option><option>Noche</option></select></label>
+            <div class="fila">
+              <button type="submit" class="boton boton-oscuro">Crear</button>
+              <button type="button" class="boton" id="btn-cancelar-curso">Cancelar</button>
+            </div>
+          </form>
         </div>
 
         <div class="columna-principal">
-          <div style="font-size: 16px;"><b>1.º A</b> · Plan [NOMBRE] · Turno mañana</div>
+          <p class="mensaje oculto" id="mensaje-cursos" role="status"></p>
+          <div style="font-size: 16px;" id="titulo-curso"></div>
 
-          <div class="pestanas">
-            <button type="button" class="pestana activa">Materias y docentes</button>
-            <button type="button" class="pestana">Alumnos inscriptos</button>
+          <div class="pestanas" role="tablist">
+            <button type="button" class="pestana activa" role="tab" aria-selected="true" data-panel="panel-materias">Materias y docentes</button>
+            <button type="button" class="pestana" role="tab" aria-selected="false" data-panel="panel-alumnos">Alumnos inscriptos (<span id="cantidad-inscriptos">0</span>)</button>
           </div>
 
-          <table>
-            <thead>
-              <tr><th>Materia</th><th>Docente asignado</th><th>Horario</th><th>Acciones</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>[Materia 1]</td><td>[Apellido, Nombre]</td><td>Lun 8:00–9:20 · Mié 10:00–11:20</td><td><a href="#">Cambiar docente</a> · <a href="#">Horario</a></td></tr>
-              <tr><td>[Materia 2]</td><td>[Apellido, Nombre]</td><td>Mar 8:00–9:20</td><td><a href="#">Cambiar docente</a> · <a href="#">Horario</a></td></tr>
-              <tr><td>[Materia 3]</td><td><i>Sin asignar</i></td><td>—</td><td><a href="#">Asignar docente</a></td></tr>
-            </tbody>
-          </table>
+          <section id="panel-materias" class="panel-pestana columna-principal" role="tabpanel">
+            <p class="ayuda" id="aviso-sin-docente"></p>
+            <div class="tabla-scroll">
+              <table id="tabla-dictados">
+                <thead>
+                  <tr><th>Materia</th><th>Docente asignado</th><th>Horario</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
 
-          <div class="subtitulo" style="margin-top: 8px;">Vista de la otra pestaña: alumnos inscriptos</div>
-          <div class="fila" style="align-items: flex-start; gap: 12px;">
-            <table style="width: 60%;">
-              <thead>
-                <tr><th>DNI</th><th>Alumno</th><th>Estado</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>[DNI]</td><td>[Apellido], Mario</td><td>Regular</td></tr>
-                <tr><td>[DNI]</td><td>[Apellido], Lucas</td><td>Regular</td></tr>
-              </tbody>
-            </table>
-            <button type="button" class="boton">+ Inscribir alumno</button>
-          </div>
+          <section id="panel-alumnos" class="panel-pestana columna-principal oculto" role="tabpanel">
+            <div class="fila-entre">
+              <div class="subtitulo">Alumnos del curso</div>
+              <button type="button" class="boton" id="btn-inscribir">+ Inscribir alumno</button>
+            </div>
+            <form class="caja-punteada oculto" id="form-inscribir">
+              <div class="grilla-3">
+                <label class="campo">DNI<input type="text" name="dni" inputmode="numeric" maxlength="8" required></label>
+                <label class="campo">Apellido y nombre<input type="text" name="alumno" placeholder="Apellido, Nombre" required></label>
+                <button type="submit" class="boton boton-oscuro">Inscribir</button>
+              </div>
+            </form>
+            <div class="tabla-scroll">
+              <table id="tabla-inscriptos">
+                <thead>
+                  <tr><th>DNI</th><th>Alumno</th><th>Estado</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
         </div>
       </main>
     </div>
