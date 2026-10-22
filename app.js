@@ -1,16 +1,17 @@
 const $ = (sel, raiz = document) => raiz.querySelector(sel);
 const $$ = (sel, raiz = document) => [...raiz.querySelectorAll(sel)];
 
+let USUARIO = null;
+
+const NOMBRE_ROL = { administrador: 'Administrador', directivo: 'Directivo', preceptor: 'Preceptor', docente: 'Docente' };
+const INSTANCIAS = ['1.º trimestre', '2.º trimestre', '3.º trimestre'];
+
+
 function hoyISO() {
   const d = new Date();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${d.getFullYear()}-${mm}-${dd}`;
-}
-
-function horaActual() {
-  const d = new Date();
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
 function formatoFecha(iso) {
@@ -23,48 +24,90 @@ function mostrarMensaje(el, texto, tipo = 'ok') {
   el.classList.toggle('error', tipo === 'error');
   el.classList.remove('oculto');
   clearTimeout(el._timer);
-  el._timer = setTimeout(() => el.classList.add('oculto'), 4000);
+  el._timer = setTimeout(() => el.classList.add('oculto'), 5000);
 }
-
 
 function esc(t) {
-  return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  return String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function puede(roles) {
+  return USUARIO && roles.includes(USUARIO.rol);
+}
+
+function nombreCurso(c) {
+  return `${c.anio}.º ${c.division}`;
+}
+
+async function api(url, { method = 'GET', body } = {}) {
+  let respuesta;
+  try {
+    respuesta = await fetch(url, {
+      method,
+      credentials: 'same-origin',
+      headers: body ? { 'Content-Type': 'application/json' } : {},
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    throw new Error('No se pudo conectar con el servidor. Abrí el sistema desde http://localhost con Apache y MySQL iniciados.');
+  }
+  const datos = await respuesta.json().catch(() => ({}));
+  if (respuesta.status === 401 && document.body.dataset.pagina !== 'login' && url !== 'api/sesion.php') {
+    window.location.href = 'index.html';
+  }
+  if (!respuesta.ok) {
+    throw new Error(datos.error || `Error del servidor (${respuesta.status}).`);
+  }
+  return datos;
 }
 
 
-const DOCENTES = ['Peralta, Gustavo', 'Ríos, Carolina', 'Medina, Ana', 'Suárez, Pablo', 'Torres, Lucía', 'Ramírez, Hernán'];
-
+function aplicarPermisos(raiz = document) {
+  $$('[data-roles]', raiz).forEach(el => {
+    el.classList.toggle('oculto', !puede(el.dataset.roles.split(',')));
+  });
+}
 
 function iniciarLogin() {
   const form = $('#form-login');
   const msg = $('#mensaje-login');
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const usuario = form.usuario.value.trim();
-    const pass = form.password.value;
-    if (!usuario || !pass) {
+    const password = form.password.value;
+    if (!usuario || !password) {
       mostrarMensaje(msg, 'Completá el usuario y la contraseña.', 'error');
       return;
     }
-    
-    window.location.href = 'inicio.html';
+    try {
+      await api('api/sesion.php', { method: 'POST', body: { usuario, password } });
+      window.location.href = 'inicio.html';
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
   });
 }
 
 
-function iniciarInicio() {
-  const hoy = new Date();
-  $('#ciclo').textContent = hoy.getFullYear();
-  $('#hoy').textContent = hoy.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+async function iniciarInicio() {
+  $('#hoy').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const d = await api('api/inicio.php');
+  $('#usuario-actual').textContent = `${d.usuario.nombre} · ${NOMBRE_ROL[d.usuario.rol]}`;
+  $('#ciclo').textContent = d.ciclo;
+  $('#dato-presentes').textContent = `Presentes hoy: ${d.presentes_hoy} de ${d.total_docentes}`;
+  $('#dato-sin-lista').textContent = `Clases sin lista hoy: ${d.clases_sin_lista}`;
+  $('#dato-instancia').textContent = `Instancia actual: ${d.instancia}`;
 }
 
-
 function iniciarPlanes() {
+  let planActual = null;
   let anioActual = '1';
-  let filaEditando = null;
+  let idEditando = null;
   const tbody = $('#tabla-materias tbody');
   const form = $('#form-materia');
+  const formPlan = $('#form-plan');
   const msg = $('#mensaje-planes');
+  const editable = puede(['administrador', 'directivo']);
 
   function filtrar() {
     $$('tr', tbody).forEach(tr => tr.classList.toggle('oculto', tr.dataset.anio !== anioActual));
@@ -72,17 +115,40 @@ function iniciarPlanes() {
     $('#titulo-anio').textContent = `Materias de ${anioActual}.º año`;
   }
 
+  async function cargarPlanes(seleccionar) {
+    const planes = await api('api/planes.php');
+    planActual = seleccionar ?? planActual ?? planes[0]?.id_plan;
+    $('#lista-planes').innerHTML = planes.map(p => `
+      <button type="button" class="item-lista item-plan${p.id_plan === planActual ? ' activo' : ''}" data-plan="${p.id_plan}">
+        <b>${esc(p.nombre)}${p.activo ? ' (vigente)' : ''}</b>
+        <small>Res. ${esc(p.resolucion || 's/n')} · ${p.activo ? 'desde ' + p.anio_vigencia : 'inactivo'}</small>
+      </button>`).join('');
+    await cargarMaterias();
+  }
+
+  async function cargarMaterias() {
+    if (!planActual) return;
+    const materias = await api(`api/materias.php?id_plan=${planActual}`);
+    tbody.innerHTML = materias.map(m => `
+      <tr data-id="${m.id_materia}" data-anio="${m.anio}" data-nombre="${esc(m.nombre)}" data-carga="${m.carga_horaria}">
+        <td>${esc(m.nombre)}</td><td>${m.anio}.º</td><td>${m.carga_horaria} hs</td>
+        ${editable ? '<td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td>' : ''}
+      </tr>`).join('');
+    filtrar();
+  }
+
   $$('.filtro-anio').forEach(b => b.addEventListener('click', () => { anioActual = b.dataset.anio; filtrar(); }));
 
- 
-  $$('.item-plan').forEach(b => b.addEventListener('click', () => {
-    $$('.item-plan').forEach(x => x.classList.remove('activo'));
-    b.classList.add('activo');
-  }));
+  $('#lista-planes').addEventListener('click', e => {
+    const b = e.target.closest('[data-plan]');
+    if (!b) return;
+    planActual = Number(b.dataset.plan);
+    $$('.item-plan').forEach(x => x.classList.toggle('activo', x === b));
+    cargarMaterias().catch(err => mostrarMensaje(msg, err.message, 'error'));
+  });
 
-  
   $('#btn-agregar-materia').addEventListener('click', () => {
-    filaEditando = null;
+    idEditando = null;
     form.reset();
     form.anio.value = anioActual;
     $('#titulo-form-materia').textContent = 'Nueva materia';
@@ -91,129 +157,146 @@ function iniciarPlanes() {
   });
   $('#btn-cancelar-materia').addEventListener('click', () => form.classList.add('oculto'));
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
-    const nombre = form.nombre.value.trim();
-    const anio = form.anio.value;
-    const carga = form.carga_horaria.value;
-    if (!nombre || !carga) {
+    const datos = { id_plan: planActual, nombre: form.nombre.value.trim(), anio: form.anio.value, carga_horaria: form.carga_horaria.value };
+    if (!datos.nombre || !datos.carga_horaria) {
       mostrarMensaje(msg, 'Completá el nombre y la carga horaria.', 'error');
       return;
     }
-    const contenido = `<td>${esc(nombre)}</td><td>${anio}.º</td><td>${carga} hs</td>
-      <td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td>`;
-    if (filaEditando) {
-      filaEditando.innerHTML = contenido;
-      filaEditando.dataset.anio = anio;
-      mostrarMensaje(msg, `Se actualizó la materia ${nombre}.`);
-    } else {
-      const tr = document.createElement('tr');
-      tr.dataset.anio = anio;
-      tr.innerHTML = contenido;
-      tbody.appendChild(tr);
-      mostrarMensaje(msg, `Se agregó la materia ${nombre} a ${anio}.º año.`);
+    try {
+      if (idEditando) {
+        await api(`api/materias.php?id=${idEditando}`, { method: 'PUT', body: datos });
+        mostrarMensaje(msg, `Se actualizó la materia ${datos.nombre}.`);
+      } else {
+        await api('api/materias.php', { method: 'POST', body: datos });
+        mostrarMensaje(msg, `Se agregó la materia ${datos.nombre} a ${datos.anio}.º año.`);
+      }
+      anioActual = datos.anio;
+      form.classList.add('oculto');
+      await cargarMaterias();
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
     }
-    anioActual = anio;
-    form.classList.add('oculto');
-    filtrar();
   });
 
-  
-  tbody.addEventListener('click', e => {
+  tbody.addEventListener('click', async e => {
     const tr = e.target.closest('tr');
     if (e.target.classList.contains('accion-borrar')) {
-      const nombre = tr.cells[0].textContent;
-      if (confirm(`¿Borrar la materia ${nombre}?`)) {
-        tr.remove();
-        mostrarMensaje(msg, `Se borró la materia ${nombre}.`);
+      if (!confirm(`¿Borrar la materia ${tr.dataset.nombre}?`)) return;
+      try {
+        await api(`api/materias.php?id=${tr.dataset.id}`, { method: 'DELETE' });
+        mostrarMensaje(msg, `Se borró la materia ${tr.dataset.nombre}.`);
+        await cargarMaterias();
+      } catch (err) {
+        mostrarMensaje(msg, err.message, 'error');
       }
     }
     if (e.target.classList.contains('accion-editar')) {
-      filaEditando = tr;
-      form.nombre.value = tr.cells[0].textContent;
+      idEditando = tr.dataset.id;
+      form.nombre.value = tr.dataset.nombre;
       form.anio.value = tr.dataset.anio;
-      form.carga_horaria.value = parseInt(tr.cells[2].textContent, 10);
+      form.carga_horaria.value = tr.dataset.carga;
       $('#titulo-form-materia').textContent = 'Editar materia';
       form.classList.remove('oculto');
       form.nombre.focus();
     }
   });
 
-  
-  const formPlan = $('#form-plan');
   $('#btn-nuevo-plan').addEventListener('click', () => { formPlan.classList.toggle('oculto'); formPlan.nombre.focus(); });
   $('#btn-cancelar-plan').addEventListener('click', () => formPlan.classList.add('oculto'));
-  formPlan.addEventListener('submit', e => {
+  formPlan.addEventListener('submit', async e => {
     e.preventDefault();
-    const nombre = formPlan.nombre.value.trim();
-    if (!nombre) return;
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'item-lista item-plan';
-    b.innerHTML = `<b>${esc(nombre)}</b><small>Res. ${esc(formPlan.resolucion.value || 's/n')} · desde ${esc(formPlan.anio_vigencia.value)}</small>`;
-    b.addEventListener('click', () => { $$('.item-plan').forEach(x => x.classList.remove('activo')); b.classList.add('activo'); });
-    $('#lista-planes').appendChild(b);
-    formPlan.reset();
-    formPlan.classList.add('oculto');
-    mostrarMensaje(msg, `Se creó el plan ${nombre}.`);
+    try {
+      const nuevo = await api('api/planes.php', {
+        method: 'POST',
+        body: { nombre: formPlan.nombre.value, resolucion: formPlan.resolucion.value, anio_vigencia: formPlan.anio_vigencia.value },
+      });
+      mostrarMensaje(msg, `Se creó el plan ${formPlan.nombre.value}.`);
+      formPlan.reset();
+      formPlan.classList.add('oculto');
+      await cargarPlanes(nuevo.id_plan);
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
   });
 
-  filtrar();
+  return cargarPlanes();
 }
 
-
 function iniciarCursos() {
-  const cursos = {
-    '1A': { nombre: '1.º A', turno: 'Mañana', materias: [['Matemática', 'Peralta, Gustavo', 'Lun 7:30–9:30 · Mié 7:30–8:50'], ['Lengua y Literatura', 'Medina, Ana', 'Mar 7:30–9:30'], ['Taller', 'Ríos, Carolina', 'Jue 13:00–17:00'], ['Ciencias Naturales', '', 'Vie 7:30–9:30']],
-      alumnos: [['47123456', 'Acosta, Mario', 'Regular'], ['47234567', 'Benítez, Lucas', 'Regular'], ['47345678', 'Castro, Sofía', 'Regular'], ['47456789', 'Díaz, Valentina', 'Pase']] },
-    '1B': { nombre: '1.º B', turno: 'Tarde', materias: [['Matemática', 'Suárez, Pablo', 'Lun 13:00–15:00'], ['Lengua y Literatura', 'Medina, Ana', 'Mié 13:00–15:00'], ['Taller', 'Ríos, Carolina', 'Vie 8:00–12:00']],
-      alumnos: [['47567890', 'Gómez, Tomás', 'Regular'], ['47678901', 'López, Camila', 'Regular']] },
-    '2A': { nombre: '2.º A', turno: 'Mañana', materias: [['Matemática', 'Peralta, Gustavo', 'Mar 9:40–11:40'], ['Física', 'Suárez, Pablo', 'Jue 7:30–9:30'], ['Dibujo Técnico', '', 'Vie 9:40–11:40']],
-      alumnos: [['46789012', 'Fernández, Julián', 'Regular'], ['46890123', 'Herrera, Martina', 'Regular']] },
-    '3A': { nombre: '3.º A', turno: 'Mañana', materias: [['Matemática', 'Peralta, Gustavo', 'Mié 9:40–11:40'], ['Química', 'Torres, Lucía', 'Lun 9:40–11:40']],
-      alumnos: [['45901234', 'Ibarra, Nicolás', 'Regular']] },
-  };
-  let cursoActual = '1A';
+  let ciclo = null;
+  let cursoActual = null;
+  let docentes = [];
   const msg = $('#mensaje-cursos');
+  const editable = puede(['administrador', 'directivo']);
 
-  function opcionesDocente(elegido) {
-    return '<option value="">Sin asignar</option>' + DOCENTES.map(d => `<option${d === elegido ? ' selected' : ''}>${esc(d)}</option>`).join('');
+  async function cargarCursos(seleccionar) {
+    const d = await api(`api/cursos.php${ciclo ? '?ciclo=' + ciclo : ''}`);
+    ciclo = d.ciclo;
+    $('#ciclo').innerHTML = d.ciclos.map(c => `<option${c === ciclo ? ' selected' : ''}>${c}</option>`).join('');
+    cursoActual = seleccionar ?? (d.cursos.some(c => c.id_curso === cursoActual) ? cursoActual : d.cursos[0]?.id_curso);
+    $('#lista-cursos').innerHTML = d.cursos.map(c =>
+      `<button type="button" class="item-lista${c.id_curso === cursoActual ? ' activo' : ''}" data-curso="${c.id_curso}"><b>${nombreCurso(c)}</b> · ${esc(c.turno)}</button>`).join('')
+      || '<p class="ayuda">No hay cursos en este ciclo.</p>';
+    await dibujarCurso();
   }
 
-  function dibujarLista() {
-    $('#lista-cursos').innerHTML = Object.entries(cursos).map(([id, c]) =>
-      `<button type="button" class="item-lista${id === cursoActual ? ' activo' : ''}" data-curso="${id}"><b>${esc(c.nombre)}</b> · ${esc(c.turno.toLowerCase())}</button>`).join('');
-  }
+  async function dibujarCurso() {
+    if (!cursoActual) {
+      $('#titulo-curso').textContent = '';
+      $('#tabla-dictados tbody').innerHTML = '';
+      $('#tabla-inscriptos tbody').innerHTML = '';
+      $('#cantidad-inscriptos').textContent = 0;
+      return;
+    }
+    const { curso, dictados, alumnos } = await api(`api/cursos.php?id=${cursoActual}`);
+    $('#titulo-curso').innerHTML = `<b>${nombreCurso(curso)}</b> · ${esc(curso.plan)} · Turno ${esc(curso.turno)}`;
 
-  function dibujarCurso() {
-    const c = cursos[cursoActual];
-    $('#titulo-curso').innerHTML = `<b>${esc(c.nombre)}</b> · Plan Técnico 2026 · Turno ${esc(c.turno.toLowerCase())}`;
-    $('#tabla-dictados tbody').innerHTML = c.materias.map(([m, d, h], i) =>
-      `<tr><td>${esc(m)}</td><td><select data-i="${i}" aria-label="Docente de ${esc(m)}">${opcionesDocente(d)}</select></td><td>${esc(h)}</td></tr>`).join('');
-    $('#tabla-inscriptos tbody').innerHTML = c.alumnos.map(([dni, n, e]) =>
-      `<tr><td>${esc(dni)}</td><td>${esc(n)}</td><td><span class="etiqueta${e === 'Regular' ? ' ok' : ' alerta'}">${esc(e)}</span></td></tr>`).join('');
-    $('#cantidad-inscriptos').textContent = c.alumnos.length;
-    const sinDocente = c.materias.filter(m => !m[1]).length;
+    $('#tabla-dictados tbody').innerHTML = dictados.map(d => {
+      const opciones = '<option value="">Sin asignar</option>' + docentes.map(doc =>
+        `<option value="${doc.id_docente}"${doc.id_docente === d.id_docente ? ' selected' : ''}>${esc(doc.nombre)}</option>`).join('');
+      return `<tr><td>${esc(d.materia)}</td>
+        <td><select data-dictado="${d.id_dictado}" data-materia="${esc(d.materia)}" aria-label="Docente de ${esc(d.materia)}"${editable ? '' : ' disabled'}>${opciones}</select></td>
+        <td>${esc(d.horario)}</td></tr>`;
+    }).join('') || '<tr><td colspan="3">El curso no tiene materias.</td></tr>';
+
+    const regulares = alumnos.filter(a => a.estado === 'regular').length;
+    $('#tabla-inscriptos tbody').innerHTML = alumnos.map(a =>
+      `<tr><td>${esc(a.dni)}</td><td>${esc(a.apellido)}, ${esc(a.nombre)}</td>
+       <td><span class="etiqueta${a.estado === 'regular' ? ' ok' : ' alerta'}">${esc(a.estado[0].toUpperCase() + a.estado.slice(1))}</span></td></tr>`).join('')
+      || '<tr><td colspan="3">Todavía no hay alumnos inscriptos.</td></tr>';
+    $('#cantidad-inscriptos').textContent = regulares;
+
+    const sinDocente = dictados.filter(d => !d.id_docente).length;
     $('#aviso-sin-docente').textContent = sinDocente ? `${sinDocente} materia(s) sin docente asignado.` : '';
   }
+
+  $('#ciclo').addEventListener('change', e => {
+    ciclo = Number(e.target.value);
+    cursoActual = null;
+    cargarCursos().catch(err => mostrarMensaje(msg, err.message, 'error'));
+  });
 
   $('#lista-cursos').addEventListener('click', e => {
     const b = e.target.closest('[data-curso]');
     if (!b) return;
-    cursoActual = b.dataset.curso;
-    dibujarLista();
-    dibujarCurso();
+    cursoActual = Number(b.dataset.curso);
+    $$('#lista-cursos .item-lista').forEach(x => x.classList.toggle('activo', x === b));
+    dibujarCurso().catch(err => mostrarMensaje(msg, err.message, 'error'));
   });
 
-  
-  $('#tabla-dictados').addEventListener('change', e => {
-    const i = e.target.dataset.i;
-    cursos[cursoActual].materias[i][1] = e.target.value;
-    mostrarMensaje(msg, `Docente actualizado en ${cursos[cursoActual].materias[i][0]}.`);
-    dibujarCurso();
+  $('#tabla-dictados').addEventListener('change', async e => {
+    const sel = e.target;
+    try {
+      await api(`api/dictados.php?id=${sel.dataset.dictado}`, { method: 'PUT', body: { id_docente: sel.value || null } });
+      mostrarMensaje(msg, `Docente actualizado en ${sel.dataset.materia}.`);
+      await dibujarCurso();
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
   });
 
-  
   $$('.pestana').forEach(p => p.addEventListener('click', () => {
     $$('.pestana').forEach(x => { x.classList.remove('activa'); x.setAttribute('aria-selected', 'false'); });
     p.classList.add('activa');
@@ -221,155 +304,190 @@ function iniciarCursos() {
     $$('.panel-pestana').forEach(panel => panel.classList.toggle('oculto', panel.id !== p.dataset.panel));
   }));
 
-  
   const formIns = $('#form-inscribir');
   $('#btn-inscribir').addEventListener('click', () => { formIns.classList.toggle('oculto'); formIns.dni.focus(); });
-  formIns.addEventListener('submit', e => {
+  formIns.addEventListener('submit', async e => {
     e.preventDefault();
     const dni = formIns.dni.value.trim();
-    const nombre = formIns.alumno.value.trim();
-    if (!/^\d{7,8}$/.test(dni) || !nombre) {
-      mostrarMensaje(msg, 'Ingresá un DNI de 7 u 8 números y el apellido y nombre.', 'error');
+    if (!/^\d{7,8}$/.test(dni)) {
+      mostrarMensaje(msg, 'Ingresá un DNI de 7 u 8 números, sin puntos.', 'error');
       return;
     }
-    const repetido = Object.values(cursos).some(c => c.alumnos.some(a => a[0] === dni && a[2] === 'Regular'));
-    if (repetido) {
-      mostrarMensaje(msg, 'Ese DNI ya está inscripto como regular en otro curso.', 'error');
-      return;
+    try {
+      await api('api/inscripciones.php', {
+        method: 'POST',
+        body: { id_curso: cursoActual, dni, alumno: formIns.alumno.value, fecha_nac: formIns.fecha_nac.value },
+      });
+      mostrarMensaje(msg, 'El alumno quedó inscripto.');
+      formIns.reset();
+      formIns.classList.add('oculto');
+      await dibujarCurso();
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
     }
-    cursos[cursoActual].alumnos.push([dni, nombre, 'Regular']);
-    formIns.reset();
-    formIns.classList.add('oculto');
-    dibujarCurso();
-    mostrarMensaje(msg, `${nombre} quedó inscripto en ${cursos[cursoActual].nombre}.`);
   });
 
-  
   const formCurso = $('#form-curso');
   $('#btn-nuevo-curso').addEventListener('click', () => formCurso.classList.toggle('oculto'));
   $('#btn-cancelar-curso').addEventListener('click', () => formCurso.classList.add('oculto'));
-  formCurso.addEventListener('submit', e => {
+  formCurso.addEventListener('submit', async e => {
     e.preventDefault();
-    const id = formCurso.anio.value + formCurso.division.value;
-    if (cursos[id]) {
-      mostrarMensaje(msg, 'Ese curso ya existe en el ciclo lectivo.', 'error');
-      return;
+    try {
+      const nuevo = await api('api/cursos.php', {
+        method: 'POST',
+        body: { anio: formCurso.anio.value, division: formCurso.division.value, turno: formCurso.turno.value, ciclo_lectivo: ciclo },
+      });
+      formCurso.classList.add('oculto');
+      mostrarMensaje(msg, `Se creó el curso ${formCurso.anio.value}.º ${formCurso.division.value}.`);
+      await cargarCursos(nuevo.id_curso);
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
     }
-    cursos[id] = { nombre: `${formCurso.anio.value}.º ${formCurso.division.value}`, turno: formCurso.turno.value, materias: [], alumnos: [] };
-    cursoActual = id;
-    formCurso.classList.add('oculto');
-    dibujarLista();
-    dibujarCurso();
-    mostrarMensaje(msg, `Se creó el curso ${cursos[id].nombre}.`);
   });
 
-  dibujarLista();
-  dibujarCurso();
+  return api('api/docentes.php').then(lista => { docentes = lista; return cargarCursos(); });
 }
 
 
 function iniciarAsistenciaDocentes() {
   const hoy = hoyISO();
-  const registros = [
-    { docente: 'Peralta, Gustavo', fecha: hoy, entrada: '07:20', salida: '12:30', obs: '' },
-    { docente: 'Medina, Ana', fecha: hoy, entrada: '07:45', salida: '', obs: 'Llegó tarde' },
-    { docente: 'Suárez, Pablo', fecha: hoy, entrada: '', salida: '', obs: 'Ausente con aviso' },
-  ];
   const form = $('#form-asistencia-docente');
   const msg = $('#mensaje-asistencia-docente');
 
-  form.id_docente.innerHTML = '<option value="">Elegí un docente…</option>' + DOCENTES.map(d => `<option>${esc(d)}</option>`).join('');
   form.fecha.value = hoy;
+  form.fecha.max = hoy;
   $('#filtro-desde').value = hoy;
   $('#filtro-hasta').value = hoy;
 
-  function dibujar() {
-    const desde = $('#filtro-desde').value;
-    const hasta = $('#filtro-hasta').value;
-    const lista = registros.filter(r => (!desde || r.fecha >= desde) && (!hasta || r.fecha <= hasta));
-    $('#tabla-asistencia-docente tbody').innerHTML = lista.length
-      ? lista.map(r => `<tr><td>${esc(r.docente)}</td><td>${formatoFecha(r.fecha)}</td><td>${r.entrada || '—'}</td><td>${r.salida || '—'}</td><td>${esc(r.obs) || '—'}</td></tr>`).join('')
+  async function dibujar() {
+    const registros = await api(`api/asistencia_docente.php?desde=${$('#filtro-desde').value}&hasta=${$('#filtro-hasta').value}`);
+    $('#tabla-asistencia-docente tbody').innerHTML = registros.length
+      ? registros.map(r => `<tr><td>${esc(r.docente)}</td><td>${formatoFecha(r.fecha)}</td><td>${r.hora_entrada || '—'}</td><td>${r.hora_salida || '—'}</td><td>${esc(r.observacion) || '—'}</td></tr>`).join('')
       : '<tr><td colspan="5">No hay registros en el período elegido.</td></tr>';
   }
 
-  function validar() {
+  async function registrar(accion) {
     if (!form.id_docente.value || !form.fecha.value) {
       mostrarMensaje(msg, 'Elegí el docente y la fecha.', 'error');
-      return false;
+      return;
     }
-    return true;
+    const campoHora = accion === 'entrada' ? form.hora_entrada : form.hora_salida;
+    try {
+      const r = await api('api/asistencia_docente.php', {
+        method: 'POST',
+        body: { accion, id_docente: form.id_docente.value, fecha: form.fecha.value, hora: campoHora.value, observacion: form.observacion.value },
+      });
+      const nombre = form.id_docente.selectedOptions[0].textContent;
+      mostrarMensaje(msg, `${accion === 'entrada' ? 'Entrada' : 'Salida'} de ${nombre} registrada a las ${r.hora}.`);
+      campoHora.value = '';
+      form.observacion.value = '';
+      await dibujar();
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
   }
 
-  $('#btn-entrada').addEventListener('click', () => {
-    if (!validar()) return;
-    const docente = form.id_docente.value;
-    const ya = registros.find(r => r.docente === docente && r.fecha === form.fecha.value);
-    if (ya && ya.entrada) {
-      mostrarMensaje(msg, `${docente} ya tiene registrada la entrada de ese día.`, 'error');
-      return;
-    }
-    const entrada = form.hora_entrada.value || horaActual();
-    if (ya) { ya.entrada = entrada; ya.obs = form.observacion.value.trim(); }
-    else registros.push({ docente, fecha: form.fecha.value, entrada, salida: '', obs: form.observacion.value.trim() });
-    mostrarMensaje(msg, `Entrada de ${docente} registrada a las ${entrada}.`);
-    form.hora_entrada.value = '';
-    form.observacion.value = '';
-    dibujar();
-  });
-
-  $('#btn-salida').addEventListener('click', () => {
-    if (!validar()) return;
-    const docente = form.id_docente.value;
-    const reg = registros.find(r => r.docente === docente && r.fecha === form.fecha.value && r.entrada);
-    if (!reg) {
-      mostrarMensaje(msg, `${docente} no tiene entrada registrada ese día.`, 'error');
-      return;
-    }
-    const salida = form.hora_salida.value || horaActual();
-    if (salida <= reg.entrada) {
-      mostrarMensaje(msg, 'La hora de salida tiene que ser mayor que la de entrada.', 'error');
-      return;
-    }
-    reg.salida = salida;
-    mostrarMensaje(msg, `Salida de ${docente} registrada a las ${salida}.`);
-    form.hora_salida.value = '';
-    dibujar();
-  });
-
-  $('#filtro-desde').addEventListener('change', dibujar);
-  $('#filtro-hasta').addEventListener('change', dibujar);
+  $('#btn-entrada').addEventListener('click', () => registrar('entrada'));
+  $('#btn-salida').addEventListener('click', () => registrar('salida'));
+  $('#filtro-desde').addEventListener('change', () => dibujar().catch(err => mostrarMensaje(msg, err.message, 'error')));
+  $('#filtro-hasta').addEventListener('change', () => dibujar().catch(err => mostrarMensaje(msg, err.message, 'error')));
   $('#btn-imprimir-registro').addEventListener('click', () => window.print());
-  dibujar();
+
+  return api('api/docentes.php').then(docentes => {
+    form.id_docente.innerHTML = '<option value="">Elegí un docente…</option>' +
+      docentes.map(d => `<option value="${d.id_docente}">${esc(d.nombre)}</option>`).join('');
+    return dibujar();
+  });
 }
 
+function prepararSelectsDictado(form, dictados, alCambiar) {
+  const cursos = [...new Map(dictados.map(d => [d.id_curso, d.curso])).entries()];
+  form.id_curso.innerHTML = cursos.map(([id, nombre]) => `<option value="${id}">${esc(nombre)}</option>`).join('');
+
+  function llenarMaterias() {
+    const delCurso = dictados.filter(d => String(d.id_curso) === form.id_curso.value);
+    form.id_dictado.innerHTML = delCurso.map(d => `<option value="${d.id_dictado}">${esc(d.materia)}</option>`).join('');
+  }
+
+  form.id_curso.addEventListener('change', () => { llenarMaterias(); alCambiar(); });
+  form.id_dictado.addEventListener('change', alCambiar);
+  llenarMaterias();
+  return cursos.length > 0;
+}
 
 function iniciarAsistenciaAlumnos() {
   const form = $('#form-lista');
   const msg = $('#mensaje-lista');
+  const tbody = $('#tabla-lista tbody');
   form.fecha.value = hoyISO();
+  form.fecha.max = hoyISO();
+
+  async function cargarLista() {
+    if (!form.id_dictado.value) return;
+    try {
+      const d = await api(`api/asistencia_alumnos.php?id_dictado=${form.id_dictado.value}&fecha=${form.fecha.value}`);
+      form.tema.value = d.clase?.tema ?? '';
+      $('#estado-lista').textContent = d.clase
+        ? 'Esta clase ya tiene lista cargada. Si cambiás algo y guardás, se corrige.'
+        : `Asistencia acumulada en la materia. Se avisa a quienes están por debajo del ${d.limite} %.`;
+      tbody.innerHTML = d.alumnos.map(a => {
+        const nombre = `${esc(a.apellido)}, ${esc(a.nombre)}`;
+        const radios = ['P', 'A', 'T', 'J'].map((v, i) => {
+          const texto = ['Presente', 'Ausente', 'Tarde', 'Justificado'][i];
+          return `<td class="centro"><input type="radio" name="alumno${a.id_alumno}" value="${v}" aria-label="${texto}: ${nombre}"${a.estado === v ? ' checked' : ''}></td>`;
+        }).join('');
+        const pct = a.porcentaje === null ? 'Sin clases' : `${a.porcentaje} %`;
+        const aviso = a.cerca_limite ? ' <span class="etiqueta alerta">Cerca del límite</span>' : '';
+        return `<tr data-alumno="${a.id_alumno}"><td>${nombre}</td>${radios}<td>${pct}${aviso}</td></tr>`;
+      }).join('') || '<tr><td colspan="6">No hay alumnos regulares en este curso.</td></tr>';
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
+  }
 
   $('#btn-todos-presentes').addEventListener('click', () => {
     $$('input[type="radio"][value="P"]', form).forEach(r => { r.checked = true; });
   });
 
-  form.addEventListener('submit', e => {
+  form.fecha.addEventListener('change', cargarLista);
+
+  form.addEventListener('submit', async e => {
     e.preventDefault();
-    const filas = $$('tbody tr', form);
+    const filas = $$('tbody tr[data-alumno]', form);
     const sinMarcar = filas.filter(tr => !$('input[type="radio"]:checked', tr));
+    if (!filas.length) return;
     if (sinMarcar.length) {
       mostrarMensaje(msg, `Faltan marcar ${sinMarcar.length} alumno(s).`, 'error');
       sinMarcar[0].querySelector('input').focus();
       return;
     }
-    const cuenta = { P: 0, A: 0, T: 0, J: 0 };
-    filas.forEach(tr => { cuenta[$('input:checked', tr).value]++; });
-    mostrarMensaje(msg, `Lista guardada: ${cuenta.P} presentes, ${cuenta.A} ausentes, ${cuenta.T} tarde y ${cuenta.J} justificados.`);
+    const lista = filas.map(tr => ({ id_alumno: Number(tr.dataset.alumno), estado: $('input:checked', tr).value }));
+    try {
+      await api('api/asistencia_alumnos.php', {
+        method: 'POST',
+        body: { id_dictado: form.id_dictado.value, fecha: form.fecha.value, tema: form.tema.value, lista },
+      });
+      const cuenta = { P: 0, A: 0, T: 0, J: 0 };
+      lista.forEach(l => { cuenta[l.estado]++; });
+      mostrarMensaje(msg, `Lista guardada: ${cuenta.P} presentes, ${cuenta.A} ausentes, ${cuenta.T} tarde y ${cuenta.J} justificados.`);
+      await cargarLista();
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
+  });
+
+  return api('api/dictados.php?mios=1').then(dictados => {
+    if (!prepararSelectsDictado(form, dictados, cargarLista)) {
+      $('#estado-lista').textContent = 'No tenés materias asignadas en el ciclo actual.';
+      return;
+    }
+    return cargarLista();
   });
 }
 
-
 function iniciarCalificaciones() {
-  const NOTA_APROBACION = 7;
+  let notaAprobacion = 7;
+  const form = $('#form-notas');
   const tbody = $('#tabla-notas tbody');
   const msg = $('#mensaje-notas');
 
@@ -377,16 +495,34 @@ function iniciarCalificaciones() {
     const notas = $$('input.nota', tr).map(i => parseFloat(i.value)).filter(n => !isNaN(n));
     const celdaProm = $('.promedio', tr);
     const celdaCond = $('.condicion', tr);
-    if (notas.length < 3) {
-      celdaProm.textContent = notas.length ? (notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(2) : '—';
+    const prom = notas.length ? notas.reduce((a, b) => a + b, 0) / notas.length : null;
+    celdaProm.textContent = prom === null ? '—' : prom.toFixed(2);
+    if (notas.length < INSTANCIAS.length) {
       celdaCond.innerHTML = '<span class="etiqueta">En curso</span>';
-      return;
+    } else {
+      celdaCond.innerHTML = prom >= notaAprobacion
+        ? '<span class="etiqueta ok">Aprobada</span>'
+        : '<span class="etiqueta alerta">A diciembre</span>';
     }
-    const prom = notas.reduce((a, b) => a + b, 0) / notas.length;
-    celdaProm.textContent = prom.toFixed(2);
-    celdaCond.innerHTML = prom >= NOTA_APROBACION
-      ? '<span class="etiqueta ok">Aprobada</span>'
-      : '<span class="etiqueta alerta">A diciembre</span>';
+  }
+
+  async function cargarNotas() {
+    if (!form.id_dictado.value) return;
+    try {
+      const d = await api(`api/calificaciones.php?id_dictado=${form.id_dictado.value}`);
+      notaAprobacion = d.nota_aprobacion;
+      $('#nota-aprobacion').textContent = notaAprobacion;
+      $('#docente-dictado').value = d.dictado.docente || 'Sin asignar';
+      tbody.innerHTML = d.alumnos.map(a => {
+        const nombre = `${esc(a.apellido)}, ${esc(a.nombre)}`;
+        const celdas = INSTANCIAS.map(inst =>
+          `<td><input type="number" class="nota" min="1" max="10" step="0.5" data-instancia="${inst}" value="${a.notas[inst] ?? ''}" aria-label="Nota ${inst} de ${nombre}"></td>`).join('');
+        return `<tr data-alumno="${a.id_alumno}"><td>${nombre}</td>${celdas}<td class="promedio">—</td><td class="condicion"></td></tr>`;
+      }).join('') || '<tr><td colspan="6">No hay alumnos regulares en este curso.</td></tr>';
+      $$('tr[data-alumno]', tbody).forEach(calcularFila);
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
   }
 
   tbody.addEventListener('input', e => {
@@ -396,23 +532,38 @@ function iniciarCalificaciones() {
     calcularFila(input.closest('tr'));
   });
 
-  $('#form-notas').addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
-    if (!e.target.checkValidity()) {
-      e.target.reportValidity();
+    if (!form.checkValidity()) {
+      form.reportValidity();
       return;
     }
-    mostrarMensaje(msg, 'Notas guardadas.');
+    const notas = $$('input.nota', tbody).map(i => ({
+      id_alumno: Number(i.closest('tr').dataset.alumno),
+      instancia: i.dataset.instancia,
+      nota: i.value === '' ? null : Number(i.value),
+    }));
+    try {
+      await api('api/calificaciones.php', { method: 'POST', body: { id_dictado: form.id_dictado.value, notas } });
+      mostrarMensaje(msg, 'Notas guardadas.');
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
   });
 
   $('#btn-imprimir-boletin').addEventListener('click', () => window.print());
-  $$('tr', tbody).forEach(calcularFila);
+
+  return api('api/dictados.php?mios=1').then(dictados => {
+    if (!prepararSelectsDictado(form, dictados, cargarNotas)) {
+      mostrarMensaje(msg, 'No tenés materias asignadas en el ciclo actual.', 'error');
+      return;
+    }
+    return cargarNotas();
+  });
 }
 
-
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const inicios = {
-    login: iniciarLogin,
     inicio: iniciarInicio,
     planes: iniciarPlanes,
     cursos: iniciarCursos,
@@ -421,5 +572,35 @@ document.addEventListener('DOMContentLoaded', () => {
     calificaciones: iniciarCalificaciones,
   };
   const pagina = document.body.dataset.pagina;
-  if (inicios[pagina]) inicios[pagina]();
+
+  if (pagina === 'login') {
+    iniciarLogin();
+    return;
+  }
+
+  try {
+    USUARIO = await api('api/sesion.php');
+  } catch (err) {
+    if (err.message.startsWith('No se pudo conectar')) alert(err.message);
+    window.location.href = 'index.html';
+    return;
+  }
+  aplicarPermisos();
+  document.body.classList.add('con-sesion');
+
+  $('.menu a.salir')?.addEventListener('click', async e => {
+    e.preventDefault();
+    await api('api/sesion.php', { method: 'DELETE' }).catch(() => {});
+    window.location.href = 'index.html';
+  });
+
+  if (inicios[pagina]) {
+    try {
+      await inicios[pagina]();
+    } catch (err) {
+      const msg = $('.mensaje');
+      if (msg) mostrarMensaje(msg, err.message, 'error');
+      else alert(err.message);
+    }
+  }
 });

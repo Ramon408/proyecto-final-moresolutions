@@ -16,10 +16,10 @@
       <a href="inicio.html">Inicio</a>
       <a href="planes.html">Planes de estudio</a>
       <a href="cursos.html" class="activo" aria-current="page">Cursos y asignaciones</a>
-      <a href="asistencia-docentes.html">Asistencia docente</a>
+      <a data-roles="administrador,directivo,preceptor" href="asistencia-docentes.html">Asistencia docente</a>
       <a href="asistencia-alumnos.html">Asistencia alumnos</a>
-      <a href="calificaciones.html">Calificaciones</a>
-      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a data-roles="administrador,directivo,docente" href="calificaciones.html">Calificaciones</a>
+      <a data-roles="administrador" href="admin-bd.html" class="admin">Admin BD</a>
       <a href="index.html" class="salir">Cerrar sesión</a>
     </nav>
 
@@ -27,8 +27,8 @@
       <header class="encabezado">
         <h1>Cursos y asignaciones</h1>
         <div class="encabezado-acciones">
-          <label class="campo-linea">Ciclo lectivo<select><option>2026</option><option>2025</option></select></label>
-          <button type="button" class="boton boton-oscuro" id="btn-nuevo-curso">+ Nuevo curso</button>
+          <label class="campo-linea">Ciclo lectivo<select id="ciclo"></select></label>
+          <button type="button" class="boton boton-oscuro" id="btn-nuevo-curso" data-roles="administrador,directivo">+ Nuevo curso</button>
         </div>
       </header>
 
@@ -73,14 +73,16 @@
           <section id="panel-alumnos" class="panel-pestana columna-principal oculto" role="tabpanel">
             <div class="fila-entre">
               <div class="subtitulo">Alumnos del curso</div>
-              <button type="button" class="boton" id="btn-inscribir">+ Inscribir alumno</button>
+              <button type="button" class="boton" id="btn-inscribir" data-roles="administrador,directivo,preceptor">+ Inscribir alumno</button>
             </div>
             <form class="caja-punteada oculto" id="form-inscribir">
-              <div class="grilla-3">
+              <div class="grilla-4">
                 <label class="campo">DNI<input type="text" name="dni" inputmode="numeric" maxlength="8" required></label>
-                <label class="campo">Apellido y nombre<input type="text" name="alumno" placeholder="Apellido, Nombre" required></label>
+                <label class="campo">Apellido y nombre<input type="text" name="alumno" placeholder="Apellido, Nombre"></label>
+                <label class="campo">Fecha de nacimiento<input type="date" name="fecha_nac"></label>
                 <button type="submit" class="boton boton-oscuro">Inscribir</button>
               </div>
+              <p class="ayuda">Si el DNI ya está cargado, alcanza con el DNI. Para un alumno nuevo completá también el nombre y la fecha de nacimiento.</p>
             </form>
             <div class="tabla-scroll">
               <table id="tabla-inscriptos">

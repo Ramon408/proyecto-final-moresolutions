@@ -12,14 +12,14 @@
 <body data-pagina="asistencia-alumnos">
   <div class="app">
     <nav class="menu" aria-label="Menú principal">
-      <div class="menu-escuela">Escuela Técnica N.º 1</div>
+      <div class="menu-escuela">Escuela Técnica N.º 4</div>
       <a href="inicio.html">Inicio</a>
       <a href="planes.html">Planes de estudio</a>
       <a href="cursos.html">Cursos y asignaciones</a>
-      <a href="asistencia-docentes.html">Asistencia docente</a>
+      <a data-roles="administrador,directivo,preceptor" href="asistencia-docentes.html">Asistencia docente</a>
       <a href="asistencia-alumnos.html" class="activo" aria-current="page">Asistencia alumnos</a>
-      <a href="calificaciones.html">Calificaciones</a>
-      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a data-roles="administrador,directivo,docente" href="calificaciones.html">Calificaciones</a>
+      <a data-roles="administrador" href="admin-bd.html" class="admin">Admin BD</a>
       <a href="index.html" class="salir">Cerrar sesión</a>
     </nav>
 
@@ -34,26 +34,22 @@
       <main>
         <form id="form-lista" class="columna-principal" style="gap: 20px;">
           <div class="grilla-4">
-            <label class="campo">Curso<select name="id_curso"><option>1.º A</option><option>1.º B</option><option>2.º A</option><option>3.º A</option></select></label>
-            <label class="campo">Materia<select name="id_dictado"><option>Matemática</option><option>Lengua y Literatura</option><option>Taller</option><option>Ciencias Naturales</option></select></label>
+            <label class="campo">Curso<select name="id_curso"></select></label>
+            <label class="campo">Materia<select name="id_dictado"></select></label>
             <label class="campo">Fecha de la clase<input type="date" name="fecha" required></label>
             <label class="campo">Tema dado<input type="text" name="tema" maxlength="200"></label>
           </div>
 
+          <p class="ayuda" id="estado-lista"></p>
+
           <p class="mensaje oculto" id="mensaje-lista" role="status"></p>
 
           <div class="tabla-scroll">
-            <table>
+            <table id="tabla-lista">
               <thead>
                 <tr><th>Alumno</th><th class="centro">Presente</th><th class="centro">Ausente</th><th class="centro">Tarde</th><th class="centro">Justificado</th><th>Asistencia acumulada</th></tr>
               </thead>
               <tbody>
-              <tr><td>Acosta, Mario</td><td class="centro"><input type="radio" name="alumno1" value="P" aria-label="Presente: Acosta, Mario" checked></td><td class="centro"><input type="radio" name="alumno1" value="A" aria-label="Ausente: Acosta, Mario"></td><td class="centro"><input type="radio" name="alumno1" value="T" aria-label="Tarde: Acosta, Mario"></td><td class="centro"><input type="radio" name="alumno1" value="J" aria-label="Justificado: Acosta, Mario"></td><td>96 %</td></tr>
-              <tr><td>Benítez, Lucas</td><td class="centro"><input type="radio" name="alumno2" value="P" aria-label="Presente: Benítez, Lucas"></td><td class="centro"><input type="radio" name="alumno2" value="A" aria-label="Ausente: Benítez, Lucas" checked></td><td class="centro"><input type="radio" name="alumno2" value="T" aria-label="Tarde: Benítez, Lucas"></td><td class="centro"><input type="radio" name="alumno2" value="J" aria-label="Justificado: Benítez, Lucas"></td><td>78 % <span class="etiqueta alerta">Cerca del límite</span></td></tr>
-              <tr><td>Castro, Sofía</td><td class="centro"><input type="radio" name="alumno3" value="P" aria-label="Presente: Castro, Sofía" checked></td><td class="centro"><input type="radio" name="alumno3" value="A" aria-label="Ausente: Castro, Sofía"></td><td class="centro"><input type="radio" name="alumno3" value="T" aria-label="Tarde: Castro, Sofía"></td><td class="centro"><input type="radio" name="alumno3" value="J" aria-label="Justificado: Castro, Sofía"></td><td>92 %</td></tr>
-              <tr><td>Díaz, Valentina</td><td class="centro"><input type="radio" name="alumno4" value="P" aria-label="Presente: Díaz, Valentina"></td><td class="centro"><input type="radio" name="alumno4" value="A" aria-label="Ausente: Díaz, Valentina"></td><td class="centro"><input type="radio" name="alumno4" value="T" aria-label="Tarde: Díaz, Valentina" checked></td><td class="centro"><input type="radio" name="alumno4" value="J" aria-label="Justificado: Díaz, Valentina"></td><td>88 %</td></tr>
-              <tr><td>Gómez, Tomás</td><td class="centro"><input type="radio" name="alumno5" value="P" aria-label="Presente: Gómez, Tomás"></td><td class="centro"><input type="radio" name="alumno5" value="A" aria-label="Ausente: Gómez, Tomás"></td><td class="centro"><input type="radio" name="alumno5" value="T" aria-label="Tarde: Gómez, Tomás"></td><td class="centro"><input type="radio" name="alumno5" value="J" aria-label="Justificado: Gómez, Tomás"></td><td>74 % <span class="etiqueta alerta">Cerca del límite</span></td></tr>
-              <tr><td>López, Camila</td><td class="centro"><input type="radio" name="alumno6" value="P" aria-label="Presente: López, Camila"></td><td class="centro"><input type="radio" name="alumno6" value="A" aria-label="Ausente: López, Camila"></td><td class="centro"><input type="radio" name="alumno6" value="T" aria-label="Tarde: López, Camila"></td><td class="centro"><input type="radio" name="alumno6" value="J" aria-label="Justificado: López, Camila"></td><td>98 %</td></tr>
               </tbody>
             </table>
           </div>

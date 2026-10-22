@@ -16,10 +16,10 @@
       <a href="inicio.html">Inicio</a>
       <a href="planes.html" class="activo" aria-current="page">Planes de estudio</a>
       <a href="cursos.html">Cursos y asignaciones</a>
-      <a href="asistencia-docentes.html">Asistencia docente</a>
+      <a data-roles="administrador,directivo,preceptor" href="asistencia-docentes.html">Asistencia docente</a>
       <a href="asistencia-alumnos.html">Asistencia alumnos</a>
-      <a href="calificaciones.html">Calificaciones</a>
-      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a data-roles="administrador,directivo,docente" href="calificaciones.html">Calificaciones</a>
+      <a data-roles="administrador" href="admin-bd.html" class="admin">Admin BD</a>
       <a href="index.html" class="salir">Cerrar sesión</a>
     </nav>
 
@@ -27,7 +27,7 @@
       <header class="encabezado">
         <h1>Planes de estudio</h1>
         <div class="encabezado-acciones">
-          <button type="button" class="boton boton-oscuro" id="btn-nuevo-plan">+ Nuevo plan</button>
+          <button type="button" class="boton boton-oscuro" id="btn-nuevo-plan" data-roles="administrador,directivo">+ Nuevo plan</button>
         </div>
       </header>
 
@@ -35,8 +35,6 @@
         <div class="columna-lateral" style="width: 260px;">
           <div class="subtitulo">Planes cargados</div>
           <div id="lista-planes" class="columna-lateral" style="width: 100%;">
-            <button type="button" class="item-lista item-plan activo"><b>Plan Técnico 2026 (vigente)</b><small>Res. 1234/25 · desde 2026</small></button>
-            <button type="button" class="item-lista item-plan"><b>Plan Técnico 2018</b><small>Res. 0567/17 · inactivo</small></button>
           </div>
 
           <form class="caja-punteada oculto" id="form-plan">
@@ -64,7 +62,7 @@
           </div>
           <div class="fila-entre">
             <div class="subtitulo" id="titulo-anio">Materias de 1.º año</div>
-            <button type="button" class="boton" id="btn-agregar-materia">+ Agregar materia</button>
+            <button type="button" class="boton" id="btn-agregar-materia" data-roles="administrador,directivo">+ Agregar materia</button>
           </div>
 
           <form class="caja-punteada oculto" id="form-materia">
@@ -83,32 +81,9 @@
           <div class="tabla-scroll">
             <table id="tabla-materias">
               <thead>
-                <tr><th>Materia</th><th>Año</th><th>Carga horaria semanal</th><th>Acciones</th></tr>
+                <tr><th>Materia</th><th>Año</th><th>Carga horaria semanal</th><th data-roles="administrador,directivo">Acciones</th></tr>
               </thead>
               <tbody>
-                <tr data-anio="1"><td>Matemática</td><td>1.º</td><td>5 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="1"><td>Lengua y Literatura</td><td>1.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="1"><td>Ciencias Naturales</td><td>1.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="1"><td>Taller</td><td>1.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="2"><td>Matemática</td><td>2.º</td><td>5 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="2"><td>Física</td><td>2.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="2"><td>Dibujo Técnico</td><td>2.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="2"><td>Taller</td><td>2.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="3"><td>Matemática</td><td>3.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="3"><td>Química</td><td>3.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="3"><td>Inglés</td><td>3.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="3"><td>Taller</td><td>3.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="4"><td>Matemática</td><td>4.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="4"><td>Electrotecnia</td><td>4.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="4"><td>Programación</td><td>4.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="5"><td>Análisis Matemático</td><td>5.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="5"><td>Sistemas Digitales</td><td>5.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="5"><td>Laboratorio</td><td>5.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="6"><td>Proyecto</td><td>6.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="6"><td>Redes</td><td>6.º</td><td>4 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="6"><td>Laboratorio</td><td>6.º</td><td>6 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="7"><td>Prácticas Profesionalizantes</td><td>7.º</td><td>8 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
-                <tr data-anio="7"><td>Gestión de Proyectos</td><td>7.º</td><td>3 hs</td><td><button type="button" class="link accion-editar">Editar</button> · <button type="button" class="link accion-borrar">Borrar</button></td></tr>
               </tbody>
             </table>
           </div>

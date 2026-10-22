@@ -1,4 +1,3 @@
-
 :root {
   --tinta: #1f1f1c;        
   --papel: #f4f2ec;        
@@ -421,6 +420,8 @@ td select { height: 36px; width: 100%; }
 .tabla-scroll { width: 100%; overflow-x: auto; }
 
 td.centro, th.centro { text-align: center; }
+
+body:not(.con-sesion) [data-roles] { visibility: hidden; }
 
 @media (max-width: 900px) {
   .app { flex-direction: column; }

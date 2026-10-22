@@ -16,10 +16,10 @@
       <a href="inicio.html">Inicio</a>
       <a href="planes.html">Planes de estudio</a>
       <a href="cursos.html">Cursos y asignaciones</a>
-      <a href="asistencia-docentes.html">Asistencia docente</a>
+      <a data-roles="administrador,directivo,preceptor" href="asistencia-docentes.html">Asistencia docente</a>
       <a href="asistencia-alumnos.html">Asistencia alumnos</a>
-      <a href="calificaciones.html" class="activo" aria-current="page">Calificaciones</a>
-      <a href="admin-bd.html" class="admin">Admin BD</a>
+      <a data-roles="administrador,directivo,docente" href="calificaciones.html" class="activo" aria-current="page">Calificaciones</a>
+      <a data-roles="administrador" href="admin-bd.html" class="admin">Admin BD</a>
       <a href="index.html" class="salir">Cerrar sesión</a>
     </nav>
 
@@ -34,11 +34,11 @@
       <main>
         <form id="form-notas" class="columna-principal" style="gap: 20px;" novalidate>
           <div class="grilla-3">
-            <label class="campo">Curso<select name="id_curso"><option>1.º A</option><option>2.º A</option><option>3.º A</option></select></label>
-            <label class="campo">Materia<select name="id_dictado"><option>Matemática</option></select></label>
-            <label class="campo">Docente<input type="text" value="Peralta, Gustavo" readonly></label>
+            <label class="campo">Curso<select name="id_curso"></select></label>
+            <label class="campo">Materia<select name="id_dictado"></select></label>
+            <label class="campo">Docente<input type="text" id="docente-dictado" readonly></label>
           </div>
-          <p class="ayuda">Solo aparecen las materias que tenés asignadas. Se aprueba con promedio 7 o más.</p>
+          <p class="ayuda">Solo aparecen las materias que tenés asignadas. Se aprueba con promedio <span id="nota-aprobacion">7</span> o más.</p>
 
           <p class="mensaje oculto" id="mensaje-notas" role="status"></p>
 
@@ -48,11 +48,6 @@
                 <tr><th>Alumno</th><th>1.º trimestre</th><th>2.º trimestre</th><th>3.º trimestre</th><th>Promedio</th><th>Condición</th></tr>
               </thead>
               <tbody>
-              <tr><td>Acosta, Mario</td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="8" aria-label="Nota 1.º trimestre de Acosta, Mario"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="7" aria-label="Nota 2.º trimestre de Acosta, Mario"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="9" aria-label="Nota 3.º trimestre de Acosta, Mario"></td><td class="promedio">—</td><td class="condicion"></td></tr>
-              <tr><td>Benítez, Lucas</td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="5" aria-label="Nota 1.º trimestre de Benítez, Lucas"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="6" aria-label="Nota 2.º trimestre de Benítez, Lucas"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="6" aria-label="Nota 3.º trimestre de Benítez, Lucas"></td><td class="promedio">—</td><td class="condicion"></td></tr>
-              <tr><td>Castro, Sofía</td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="9" aria-label="Nota 1.º trimestre de Castro, Sofía"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="8" aria-label="Nota 2.º trimestre de Castro, Sofía"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="" aria-label="Nota 3.º trimestre de Castro, Sofía"></td><td class="promedio">—</td><td class="condicion"></td></tr>
-              <tr><td>Díaz, Valentina</td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="7" aria-label="Nota 1.º trimestre de Díaz, Valentina"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="7" aria-label="Nota 2.º trimestre de Díaz, Valentina"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="7" aria-label="Nota 3.º trimestre de Díaz, Valentina"></td><td class="promedio">—</td><td class="condicion"></td></tr>
-              <tr><td>Gómez, Tomás</td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="6" aria-label="Nota 1.º trimestre de Gómez, Tomás"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="" aria-label="Nota 2.º trimestre de Gómez, Tomás"></td><td><input type="number" class="nota" min="1" max="10" step="0.5" value="" aria-label="Nota 3.º trimestre de Gómez, Tomás"></td><td class="promedio">—</td><td class="condicion"></td></tr>
               </tbody>
             </table>
           </div>
