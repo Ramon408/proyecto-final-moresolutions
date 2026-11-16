@@ -39,10 +39,14 @@
             <p>Registrar entrada y salida de hoy</p>
             <span class="dato" id="dato-presentes"></span>
           </a>
-          <a href="asistencia-alumnos.html" class="tarjeta">
+          <a data-roles="administrador,preceptor" href="asistencia-alumnos.html" class="tarjeta">
             <h2>Tomar asistencia</h2>
             <p>Elegir curso, materia y marcar la lista</p>
             <span class="dato" id="dato-sin-lista"></span>
+          </a>
+          <a data-roles="directivo,docente" href="asistencia-alumnos.html" class="tarjeta">
+            <h2>Ver asistencia</h2>
+            <p>Consultar la lista de cada clase y la asistencia acumulada</p>
           </a>
           <a data-roles="administrador,directivo,docente" href="calificaciones.html" class="tarjeta">
             <h2>Cargar notas</h2>

@@ -381,6 +381,8 @@ th { background: var(--gris-menu); }
   background: #f6e1dc;
 }
 
+.marca-asistencia { font-size: 18px; font-weight: 700; }
+
 .boton:disabled {
   opacity: 0.4;
   cursor: not-allowed;

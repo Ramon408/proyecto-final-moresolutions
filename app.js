@@ -442,20 +442,29 @@ function iniciarAsistenciaAlumnos() {
       const d = await api(`api/asistencia_alumnos.php?id_dictado=${form.id_dictado.value}&fecha=${form.fecha.value}`);
       form.tema.value = d.clase?.tema ?? '';
       const sinClase = d.sin_clase;
+      const soloLectura = !d.puede_cargar;
+      const bloqueada = Boolean(sinClase) || soloLectura;
       $('#estado-lista').textContent = sinClase
         ? `${sinClase} Elegí otra fecha.`
-        : d.clase
-          ? 'Esta clase ya tiene lista cargada. Si cambiás algo y guardás, se corrige.'
-          : `Asistencia acumulada en la materia. Se avisa a quienes están por debajo del ${d.limite} %.`;
+        : soloLectura
+          ? (d.clase
+            ? 'Solo consulta: la asistencia la carga el preceptor.'
+            : 'Solo consulta: el preceptor todavía no cargó la lista de esta clase.')
+          : d.clase
+            ? 'Esta clase ya tiene lista cargada. Si cambiás algo y guardás, se corrige.'
+            : `Asistencia acumulada en la materia. Se avisa a quienes están por debajo del ${d.limite} %.`;
       $('#estado-lista').classList.toggle('sin-clase', Boolean(sinClase));
-      $('#btn-todos-presentes').disabled = Boolean(sinClase);
-      $('button[type="submit"]', form).disabled = Boolean(sinClase);
-      form.tema.disabled = Boolean(sinClase);
+      $('#btn-todos-presentes').disabled = bloqueada;
+      $('button[type="submit"]', form).disabled = bloqueada;
+      form.tema.disabled = bloqueada;
       tbody.innerHTML = d.alumnos.map(a => {
         const nombre = `${esc(a.apellido)}, ${esc(a.nombre)}`;
         const radios = ['P', 'A', 'T', 'J'].map((v, i) => {
           const texto = ['Presente', 'Ausente', 'Tarde', 'Justificado'][i];
-          return `<td class="centro"><input type="radio" name="alumno${a.id_alumno}" value="${v}" aria-label="${texto}: ${nombre}"${a.estado === v ? ' checked' : ''}${sinClase ? ' disabled' : ''}></td>`;
+          if (soloLectura) {
+            return `<td class="centro marca-asistencia">${a.estado === v ? `<span title="${texto}" aria-label="${texto}">✓</span>` : ''}</td>`;
+          }
+          return `<td class="centro"><input type="radio" name="alumno${a.id_alumno}" value="${v}" aria-label="${texto}: ${nombre}"${a.estado === v ? ' checked' : ''}${bloqueada ? ' disabled' : ''}></td>`;
         }).join('');
         const pct = a.porcentaje === null ? 'Sin clases' : `${a.porcentaje} %`;
         const aviso = a.cerca_limite ? ' <span class="etiqueta alerta">Cerca del límite</span>' : '';

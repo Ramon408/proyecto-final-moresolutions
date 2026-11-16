@@ -2,6 +2,7 @@
 
 require __DIR__ . '/conexion.php';
 
+const ROLES_CARGAN_ASISTENCIA = ['administrador', 'preceptor'];
 
 function controlarDictado(array $usuario, int $idDictado): void
 {
@@ -10,7 +11,7 @@ function controlarDictado(array $usuario, int $idDictado): void
     $idDocente = $consulta->fetchColumn();
     if ($idDocente === false) responderError('La materia no existe en ese curso.', 404);
     if ($usuario['rol'] === 'docente' && (int) $idDocente !== (int) $usuario['id_docente']) {
-        responderError('Solo podés tomar lista en tus materias.', 403);
+        responderError('Solo podés ver la asistencia de tus materias.', 403);
     }
 }
 
@@ -81,11 +82,15 @@ ejecutar(function () {
             'alumnos'     => $alumnos,
             'limite'      => LIMITE_ASISTENCIA,
             'dias'        => $dias,
-            'sin_clase'   => motivoSinClase($dias, $fecha), // null si ese día se dicta la materia
+            'sin_clase'   => motivoSinClase($dias, $fecha),
+            'puede_cargar' => in_array($usuario['rol'], ROLES_CARGAN_ASISTENCIA, true),
         ]);
     }
 
     if (metodo() !== 'POST') responderError('Método no permitido.', 405);
+    if (!in_array($usuario['rol'], ROLES_CARGAN_ASISTENCIA, true)) {
+        responderError('Solo el preceptor puede cargar la asistencia de los alumnos. Vos podés consultarla.', 403);
+    }
 
     $d = leerJSON();
     $idDictado = (int) ($d['id_dictado'] ?? 0);
