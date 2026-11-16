@@ -14,6 +14,19 @@ function hoyISO() {
   return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
+function esFinDeSemana(fecha) {
+  const dia = new Date(`${fecha}T12:00:00`).getDay();
+  return dia === 0 || dia === 6;
+}
+
+function diaHabilAnterior(fecha) {
+  const d = new Date(`${fecha}T12:00:00`);
+  while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
 function formatoFecha(iso) {
   const [a, m, d] = iso.split('-');
   return `${d}/${m}/${a}`;
@@ -419,22 +432,30 @@ function iniciarAsistenciaAlumnos() {
   const form = $('#form-lista');
   const msg = $('#mensaje-lista');
   const tbody = $('#tabla-lista tbody');
-  form.fecha.value = hoyISO();
+  form.fecha.value = diaHabilAnterior(hoyISO());
   form.fecha.max = hoyISO();
+  let fechaElegida = form.fecha.value;
 
   async function cargarLista() {
     if (!form.id_dictado.value) return;
     try {
       const d = await api(`api/asistencia_alumnos.php?id_dictado=${form.id_dictado.value}&fecha=${form.fecha.value}`);
       form.tema.value = d.clase?.tema ?? '';
-      $('#estado-lista').textContent = d.clase
-        ? 'Esta clase ya tiene lista cargada. Si cambiás algo y guardás, se corrige.'
-        : `Asistencia acumulada en la materia. Se avisa a quienes están por debajo del ${d.limite} %.`;
+      const sinClase = d.sin_clase;
+      $('#estado-lista').textContent = sinClase
+        ? `${sinClase} Elegí otra fecha.`
+        : d.clase
+          ? 'Esta clase ya tiene lista cargada. Si cambiás algo y guardás, se corrige.'
+          : `Asistencia acumulada en la materia. Se avisa a quienes están por debajo del ${d.limite} %.`;
+      $('#estado-lista').classList.toggle('sin-clase', Boolean(sinClase));
+      $('#btn-todos-presentes').disabled = Boolean(sinClase);
+      $('button[type="submit"]', form).disabled = Boolean(sinClase);
+      form.tema.disabled = Boolean(sinClase);
       tbody.innerHTML = d.alumnos.map(a => {
         const nombre = `${esc(a.apellido)}, ${esc(a.nombre)}`;
         const radios = ['P', 'A', 'T', 'J'].map((v, i) => {
           const texto = ['Presente', 'Ausente', 'Tarde', 'Justificado'][i];
-          return `<td class="centro"><input type="radio" name="alumno${a.id_alumno}" value="${v}" aria-label="${texto}: ${nombre}"${a.estado === v ? ' checked' : ''}></td>`;
+          return `<td class="centro"><input type="radio" name="alumno${a.id_alumno}" value="${v}" aria-label="${texto}: ${nombre}"${a.estado === v ? ' checked' : ''}${sinClase ? ' disabled' : ''}></td>`;
         }).join('');
         const pct = a.porcentaje === null ? 'Sin clases' : `${a.porcentaje} %`;
         const aviso = a.cerca_limite ? ' <span class="etiqueta alerta">Cerca del límite</span>' : '';
@@ -449,7 +470,15 @@ function iniciarAsistenciaAlumnos() {
     $$('input[type="radio"][value="P"]', form).forEach(r => { r.checked = true; });
   });
 
-  form.fecha.addEventListener('change', cargarLista);
+  form.fecha.addEventListener('change', () => {
+    if (form.fecha.value && esFinDeSemana(form.fecha.value)) {
+      mostrarMensaje(msg, 'Los sábados y domingos no hay clases. Elegí un día de lunes a viernes.', 'error');
+      form.fecha.value = fechaElegida;
+      return;
+    }
+    fechaElegida = form.fecha.value;
+    cargarLista();
+  });
 
   form.addEventListener('submit', async e => {
     e.preventDefault();

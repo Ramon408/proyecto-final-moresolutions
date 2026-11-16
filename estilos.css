@@ -372,6 +372,21 @@ th { background: var(--gris-menu); }
 }
 .mensaje.error { background: #f6e1dc; }
 
+.ayuda.sin-clase {
+  padding: 12px 16px;
+  border: 2px solid var(--tinta);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--tinta);
+  background: #f6e1dc;
+}
+
+.boton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .ayuda { margin: 0; font-size: 13px; color: var(--texto-suave); }
 
 

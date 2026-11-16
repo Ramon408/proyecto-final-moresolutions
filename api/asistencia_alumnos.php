@@ -14,6 +14,36 @@ function controlarDictado(array $usuario, int $idDictado): void
     }
 }
 
+
+function diasDelDictado(int $idDictado): array
+{
+    $consulta = db()->prepare('SELECT DISTINCT dia_semana FROM horario WHERE id_dictado = ? ORDER BY dia_semana');
+    $consulta->execute([$idDictado]);
+    return array_map('intval', $consulta->fetchAll(PDO::FETCH_COLUMN));
+}
+
+
+function nombresDias(array $dias): string
+{
+    $nombres = [1 => 'lunes', 2 => 'martes', 3 => 'miércoles', 4 => 'jueves', 5 => 'viernes', 6 => 'sábados', 7 => 'domingos'];
+    $lista = array_map(function ($d) use ($nombres) { return $nombres[$d]; }, $dias);
+    if (count($lista) <= 1) return implode('', $lista);
+    return implode(', ', array_slice($lista, 0, -1)) . ' y ' . end($lista);
+}
+
+
+function motivoSinClase(array $dias, string $fecha): ?string
+{
+    if (!$dias) {
+        return 'Esta materia no tiene horario cargado: no se puede tomar lista.';
+    }
+    $diaFecha = (int) date('N', strtotime($fecha));
+    if (!in_array($diaFecha, $dias, true)) {
+        return 'Esta materia no se dicta los ' . nombresDias([$diaFecha]) . '. Se dicta los ' . nombresDias($dias) . '.';
+    }
+    return null;
+}
+
 ejecutar(function () {
     $usuario = requerirSesion(['administrador', 'directivo', 'preceptor', 'docente']);
 
@@ -45,7 +75,14 @@ ejecutar(function () {
             return $a;
         }, $consulta->fetchAll());
 
-        responder(['clase' => $clase, 'alumnos' => $alumnos, 'limite' => LIMITE_ASISTENCIA]);
+        $dias = diasDelDictado($idDictado);
+        responder([
+            'clase'       => $clase,
+            'alumnos'     => $alumnos,
+            'limite'      => LIMITE_ASISTENCIA,
+            'dias'        => $dias,
+            'sin_clase'   => motivoSinClase($dias, $fecha), // null si ese día se dicta la materia
+        ]);
     }
 
     if (metodo() !== 'POST') responderError('Método no permitido.', 405);
@@ -57,6 +94,8 @@ ejecutar(function () {
     controlarDictado($usuario, $idDictado);
     if (!fechaValida($fecha)) responderError('La fecha de la clase no es válida.');
     if ($fecha > date('Y-m-d')) responderError('No se puede tomar lista de una fecha futura.');
+    $motivo = motivoSinClase(diasDelDictado($idDictado), $fecha);
+    if ($motivo !== null) responderError($motivo);
     if (!is_array($lista) || !$lista) responderError('La lista está vacía.');
     foreach ($lista as $fila) {
         if (!in_array($fila['estado'] ?? '', ['P', 'A', 'T', 'J'], true)) {
