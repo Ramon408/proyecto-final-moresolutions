@@ -484,8 +484,32 @@ body:not(.con-sesion) [data-roles] { visibility: hidden; }
   .login { width: 100%; margin: 16px; padding: 28px; }
 }
 
+.solo-imprimir { display: none; }
+
 @media print {
   .menu, .encabezado-acciones, .no-imprimir, button { display: none !important; }
   body, .contenido { background: #ffffff; }
   input { border: none; }
+
+  @page { size: A4; margin: 14mm 12mm; }
+
+  .encabezado { display: none; }
+
+  .app, .contenido, main, .tabla-scroll { display: block; height: auto; min-height: 0; overflow: visible; }
+
+  thead { display: table-header-group; }
+  tr.encabezado-hoja { display: table-row; }
+  tr { break-inside: avoid; }
+
+  tr.encabezado-hoja th {
+    padding: 0 0 10px;
+    border: none;
+    border-bottom: 2px solid #000;
+    background: #fff;
+    text-align: left;
+    font-weight: 400;
+  }
+  .hoja-escuela { display: block; font-family: var(--fuente-titulo); font-size: 18px; font-weight: 700; }
+  .hoja-titulo { display: block; font-size: 14px; font-weight: 700; margin-top: 2px; }
+  .hoja-detalle { display: block; font-size: 11px; margin-top: 2px; }
 }

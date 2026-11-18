@@ -108,6 +108,18 @@ function mostrarUsuarioActual() {
   lugar.title = `Usuario: ${USUARIO.username}`;
 }
 
+function prepararEncabezadoHoja(tabla, titulo, detalle) {
+  const fila = $('.encabezado-hoja', tabla);
+  if (!fila) return;
+  const impreso = new Date().toLocaleDateString('es-AR');
+  $('.hoja-titulo', fila).textContent = titulo;
+  $('.hoja-detalle', fila).textContent = `${detalle} · Impreso el ${impreso} por ${USUARIO?.nombre || ''}`;
+}
+
+function fechaArg(iso) {
+  return iso ? iso.split('-').reverse().join('/') : '';
+}
+
 async function iniciarInicio() {
   $('#hoy').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   const d = await api('api/inicio.php');
@@ -409,6 +421,11 @@ function iniciarAsistenciaDocentes() {
   $('#btn-salida').addEventListener('click', () => registrar('salida'));
   $('#filtro-desde').addEventListener('change', () => dibujar().catch(err => mostrarMensaje(msg, err.message, 'error')));
   $('#filtro-hasta').addEventListener('change', () => dibujar().catch(err => mostrarMensaje(msg, err.message, 'error')));
+  window.addEventListener('beforeprint', () => {
+    const desde = fechaArg($('#filtro-desde').value), hasta = fechaArg($('#filtro-hasta').value);
+    prepararEncabezadoHoja($('#tabla-asistencia-docente'), 'Registro de asistencia del personal docente',
+      desde === hasta ? `Día ${desde}` : `Del ${desde} al ${hasta}`);
+  });
   $('#btn-imprimir-registro').addEventListener('click', () => window.print());
 
   return api('api/docentes.php').then(docentes => {
@@ -606,6 +623,12 @@ function iniciarCalificaciones() {
     }
   });
 
+  window.addEventListener('beforeprint', () => {
+    const curso = form.id_curso.selectedOptions[0]?.textContent || '';
+    const materia = form.id_dictado.selectedOptions[0]?.textContent || '';
+    prepararEncabezadoHoja($('#tabla-notas'), 'Planilla de calificaciones',
+      `Curso ${curso} · ${materia} · Docente: ${$('#docente-dictado').value}`);
+  });
   $('#btn-imprimir-boletin').addEventListener('click', () => window.print());
 
   return api('api/dictados.php?mios=1').then(dictados => {

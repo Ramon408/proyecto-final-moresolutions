@@ -34,18 +34,25 @@
 
       <main>
         <form id="form-notas" class="columna-principal" style="gap: 20px;" novalidate>
-          <div class="grilla-3">
+          <div class="grilla-3 no-imprimir">
             <label class="campo">Curso<select name="id_curso"></select></label>
             <label class="campo">Materia<select name="id_dictado"></select></label>
             <label class="campo">Docente<input type="text" id="docente-dictado" readonly></label>
           </div>
-          <p class="ayuda">Solo aparecen las materias que tenés asignadas. Se aprueba con promedio <span id="nota-aprobacion">7</span> o más. Si el alumno faltó al examen, escribí <b>A</b>: se guarda como 0 y cuenta en el promedio.</p>
+          <p class="ayuda no-imprimir">Solo aparecen las materias que tenés asignadas. Se aprueba con promedio <span id="nota-aprobacion">7</span> o más. Si el alumno faltó al examen, escribí <b>A</b>: se guarda como 0 y cuenta en el promedio.</p>
 
           <p class="mensaje oculto" id="mensaje-notas" role="status"></p>
 
           <div class="tabla-scroll">
             <table id="tabla-notas">
               <thead>
+                <tr class="encabezado-hoja solo-imprimir">
+                  <th colspan="6">
+                    <span class="hoja-escuela">Escuela Técnica N.º 4</span>
+                    <span class="hoja-titulo"></span>
+                    <span class="hoja-detalle"></span>
+                  </th>
+                </tr>
                 <tr><th>Alumno</th><th>1.º trimestre</th><th>2.º trimestre</th><th>3.º trimestre</th><th>Promedio</th><th>Condición</th></tr>
               </thead>
               <tbody>
