@@ -25,24 +25,26 @@ CREATE TABLE usuario (
 
 CREATE TABLE docente (
   id_docente INT AUTO_INCREMENT PRIMARY KEY,
-  dni        VARCHAR(10) NOT NULL UNIQUE,
+  dni        INT UNSIGNED NOT NULL UNIQUE,
   nombre     VARCHAR(50) NOT NULL,
   apellido   VARCHAR(50) NOT NULL,
   email      VARCHAR(100) NULL,
   telefono   VARCHAR(20) NULL,
   id_usuario INT NULL UNIQUE,
-  CONSTRAINT fk_docente_usuario FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario) ON DELETE SET NULL
+  CONSTRAINT fk_docente_usuario FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario) ON DELETE SET NULL,
+  CONSTRAINT chk_docente_dni CHECK (dni BETWEEN 1000000 AND 99999999)
 );
 
 CREATE TABLE alumno (
   id_alumno  INT AUTO_INCREMENT PRIMARY KEY,
-  dni        VARCHAR(10) NOT NULL UNIQUE,
+  dni        INT UNSIGNED NOT NULL UNIQUE,
   nombre     VARCHAR(50) NOT NULL,
   apellido   VARCHAR(50) NOT NULL,
   fecha_nac  DATE NOT NULL,
   email      VARCHAR(100) NULL,
   id_usuario INT NULL UNIQUE,
-  CONSTRAINT fk_alumno_usuario FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario) ON DELETE SET NULL
+  CONSTRAINT fk_alumno_usuario FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario) ON DELETE SET NULL,
+  CONSTRAINT chk_alumno_dni CHECK (dni BETWEEN 1000000 AND 99999999)
 );
 
 
@@ -175,26 +177,26 @@ INSERT INTO usuario (id_usuario, username, password_hash, id_rol, activo) VALUES
   (5, 'crios',      '$2y$10$88.drnRAYkn0llNXyxG7yuipYRpqbmZwVdh5Q2rH3dqgrLvxGwV/W', 4, TRUE);
 
 INSERT INTO docente (id_docente, dni, nombre, apellido, email, telefono, id_usuario) VALUES
-  (1, '28123456', 'Gustavo',  'Peralta', 'gperalta@escuela.edu.ar', '11-4555-1234', 4),
-  (2, '30234567', 'Carolina', 'Ríos',    'crios@escuela.edu.ar',    '11-4555-2345', 5),
-  (3, '27345678', 'Ana',      'Medina',  NULL, NULL, NULL),
-  (4, '31456789', 'Pablo',    'Suárez',  NULL, NULL, NULL),
-  (5, '29567890', 'Lucía',    'Torres',  NULL, NULL, NULL),
-  (6, '26678901', 'Hernán',   'Ramírez', NULL, NULL, NULL);
+  (1, 28123456, 'Gustavo',  'Peralta', 'gperalta@escuela.edu.ar', '11-4555-1234', 4),
+  (2, 30234567, 'Carolina', 'Ríos',    'crios@escuela.edu.ar',    '11-4555-2345', 5),
+  (3, 27345678, 'Ana',      'Medina',  NULL, NULL, NULL),
+  (4, 31456789, 'Pablo',    'Suárez',  NULL, NULL, NULL),
+  (5, 29567890, 'Lucía',    'Torres',  NULL, NULL, NULL),
+  (6, 26678901, 'Hernán',   'Ramírez', NULL, NULL, NULL);
 
 INSERT INTO alumno (id_alumno, dni, nombre, apellido, fecha_nac, email, id_usuario) VALUES
-  (1,  '47123456', 'Mario',    'Acosta',    '2013-03-14', NULL, NULL),
-  (2,  '47234567', 'Lucas',    'Benítez',   '2013-07-02', NULL, NULL),
-  (3,  '47345678', 'Sofía',    'Castro',    '2013-11-21', NULL, NULL),
-  (4,  '47456789', 'Valentina','Díaz',      '2013-05-09', NULL, NULL),
-  (5,  '47567890', 'Tomás',    'Gómez',     '2013-08-30', NULL, NULL),
-  (6,  '47678901', 'Camila',   'López',     '2013-01-17', NULL, NULL),
-  (7,  '47789012', 'Lautaro',  'Ortiz',     '2013-06-25', NULL, NULL),
-  (8,  '47890123', 'Agustina', 'Molina',    '2013-10-03', NULL, NULL),
-  (9,  '47901234', 'Bruno',    'Navarro',   '2013-12-12', NULL, NULL),
-  (10, '46789012', 'Julián',   'Fernández', '2012-04-19', NULL, NULL),
-  (11, '46890123', 'Martina',  'Herrera',   '2012-09-07', NULL, NULL),
-  (12, '45901234', 'Nicolás',  'Ibarra',    '2011-02-28', NULL, NULL);
+  (1,  47123456, 'Mario',    'Acosta',    '2013-03-14', NULL, NULL),
+  (2,  47234567, 'Lucas',    'Benítez',   '2013-07-02', NULL, NULL),
+  (3,  47345678, 'Sofía',    'Castro',    '2013-11-21', NULL, NULL),
+  (4,  47456789, 'Valentina','Díaz',      '2013-05-09', NULL, NULL),
+  (5,  47567890, 'Tomás',    'Gómez',     '2013-08-30', NULL, NULL),
+  (6,  47678901, 'Camila',   'López',     '2013-01-17', NULL, NULL),
+  (7,  47789012, 'Lautaro',  'Ortiz',     '2013-06-25', NULL, NULL),
+  (8,  47890123, 'Agustina', 'Molina',    '2013-10-03', NULL, NULL),
+  (9,  47901234, 'Bruno',    'Navarro',   '2013-12-12', NULL, NULL),
+  (10, 46789012, 'Julián',   'Fernández', '2012-04-19', NULL, NULL),
+  (11, 46890123, 'Martina',  'Herrera',   '2012-09-07', NULL, NULL),
+  (12, 45901234, 'Nicolás',  'Ibarra',    '2011-02-28', NULL, NULL);
 
 INSERT INTO plan_estudio (id_plan, nombre, resolucion, anio_vigencia, activo) VALUES
   (1, 'Plan Técnico 2026', '1234/25', 2026, TRUE),

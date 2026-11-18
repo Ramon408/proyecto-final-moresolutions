@@ -11,6 +11,7 @@ ejecutar(function () {
     $dni = trim($d['dni'] ?? '');
     if (!preg_match('/^\d{7,8}$/', $dni)) {
         responderError('El DNI tiene que tener 7 u 8 números, sin puntos.');
+        $dni = (int) $dni;
     }
 
     $consulta = db()->prepare('SELECT ciclo_lectivo FROM curso WHERE id_curso = ?');
