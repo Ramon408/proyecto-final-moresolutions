@@ -160,7 +160,7 @@ CREATE TABLE calificacion (
   CONSTRAINT fk_calif_dictado FOREIGN KEY (id_dictado) REFERENCES dictado (id_dictado),
   CONSTRAINT uq_calificacion UNIQUE (id_alumno, id_dictado, instancia),
   CONSTRAINT chk_calif_instancia CHECK (instancia IN ('1.º trimestre', '2.º trimestre', '3.º trimestre', 'diciembre', 'febrero', 'final')),
-  CONSTRAINT chk_calif_nota CHECK (nota BETWEEN 1 AND 10)
+  CONSTRAINT chk_calif_nota CHECK (nota = 0 OR nota BETWEEN 1 AND 10)
 );
 
 

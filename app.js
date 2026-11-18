@@ -529,8 +529,20 @@ function iniciarCalificaciones() {
   const tbody = $('#tabla-notas tbody');
   const msg = $('#mensaje-notas');
 
+  function valorNota(texto) {
+    const t = texto.trim().toUpperCase();
+    if (t === 'A') return 0;
+    return t === '' ? NaN : Number(t.replace(',', '.'));
+  }
+
+  function notaValida(texto) {
+    const t = texto.trim().toUpperCase();
+    const v = valorNota(texto);
+    return t === '' || t === 'A' || (v >= 1 && v <= 10);
+  }
+
   function calcularFila(tr) {
-    const notas = $$('input.nota', tr).map(i => parseFloat(i.value)).filter(n => !isNaN(n));
+    const notas = $$('input.nota', tr).map(i => valorNota(i.value)).filter(n => !isNaN(n));
     const celdaProm = $('.promedio', tr);
     const celdaCond = $('.condicion', tr);
     const prom = notas.length ? notas.reduce((a, b) => a + b, 0) / notas.length : null;
@@ -554,7 +566,7 @@ function iniciarCalificaciones() {
       tbody.innerHTML = d.alumnos.map(a => {
         const nombre = `${esc(a.apellido)}, ${esc(a.nombre)}`;
         const celdas = INSTANCIAS.map(inst =>
-          `<td><input type="number" class="nota" min="1" max="10" step="0.5" data-instancia="${inst}" value="${a.notas[inst] ?? ''}" aria-label="Nota ${inst} de ${nombre}"></td>`).join('');
+          `<td><input type="text" inputmode="decimal" maxlength="5" class="nota${a.notas[inst] === 0 ? ' ausente' : ''}" data-instancia="${inst}" value="${a.notas[inst] === 0 ? 'A' : (a.notas[inst] ?? '')}" aria-label="Nota ${inst} de ${nombre} (A si estuvo ausente)"></td>`).join('');
         return `<tr data-alumno="${a.id_alumno}"><td>${nombre}</td>${celdas}<td class="promedio">—</td><td class="condicion"></td></tr>`;
       }).join('') || '<tr><td colspan="6">No hay alumnos regulares en este curso.</td></tr>';
       $$('tr[data-alumno]', tbody).forEach(calcularFila);
@@ -565,8 +577,8 @@ function iniciarCalificaciones() {
 
   tbody.addEventListener('input', e => {
     const input = e.target;
-    const v = parseFloat(input.value);
-    input.setCustomValidity(input.value && (v < 1 || v > 10) ? 'La nota va de 1 a 10' : '');
+    input.setCustomValidity(notaValida(input.value) ? '' : 'La nota va de 1 a 10, o A si estuvo ausente');
+    input.classList.toggle('ausente', input.value.trim().toUpperCase() === 'A');
     calcularFila(input.closest('tr'));
   });
 
@@ -579,7 +591,7 @@ function iniciarCalificaciones() {
     const notas = $$('input.nota', tbody).map(i => ({
       id_alumno: Number(i.closest('tr').dataset.alumno),
       instancia: i.dataset.instancia,
-      nota: i.value === '' ? null : Number(i.value),
+      nota: i.value.trim() === '' ? null : (i.value.trim().toUpperCase() === 'A' ? 'A' : valorNota(i.value)),
     }));
     try {
       await api('api/calificaciones.php', { method: 'POST', body: { id_dictado: form.id_dictado.value, notas } });

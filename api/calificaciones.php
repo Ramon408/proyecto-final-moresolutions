@@ -69,9 +69,12 @@ ejecutar(function () {
             $borrar->execute([(int) $n['id_alumno'], $idDictado, $instancia]);
             continue;
         }
-        if (!is_numeric($nota) || $nota < 1 || $nota > 10) {
+        if (is_string($nota) && strtoupper(trim($nota)) === 'A') {
+            $nota = 0;
+        }
+        if (!is_numeric($nota) || ((float) $nota !== 0.0 && ($nota < 1 || $nota > 10))) {
             db()->rollBack();
-            responderError('Las notas van de 1 a 10.');
+            responderError('Las notas van de 1 a 10, o A si el alumno estuvo ausente.');
         }
         $guardar->execute([(int) $n['id_alumno'], $idDictado, $instancia, $nota]);
     }

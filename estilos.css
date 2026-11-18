@@ -199,6 +199,8 @@ input[type="radio"] { height: auto; }
 
 input.nota { width: 70px; height: 36px; }
 
+input.nota.ausente { font-weight: 700; color: #a3341f; }
+
 .grilla-3, .grilla-4, .grilla-5 {
   display: grid;
   gap: 14px;
