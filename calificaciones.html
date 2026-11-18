@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="img/logo.jpg">
   <title>Carga de calificaciones</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="estilos.css">
   <script src="app.js" defer></script>
 </head>
+
 <body data-pagina="calificaciones">
   <div class="app">
     <nav class="menu" aria-label="Menú principal">
-      <div class="menu-escuela">Escuela Técnica N.º 4</div>
+      <div class="menu-escuela">
+        <img src="img/logo.jpg" alt="Logo de la Escuela Industrial N.º 4" class="logo-escuela">
+        <div class="menu-escuela-texto">
+          <span class="menu-escuela-nombre">Escuela Industrial N.º 4</span>
+          <span class="menu-escuela-sub">"José Menéndez"<br>Río Gallegos, Santa Cruz</span>
+        </div>
+      </div>
       <a href="inicio.html">Inicio</a>
       <a href="planes.html">Planes de estudio</a>
       <a href="cursos.html">Cursos y asignaciones</a>
       <a data-roles="administrador,directivo,preceptor" href="asistencia-docentes.html">Asistencia docente</a>
       <a href="asistencia-alumnos.html">Asistencia alumnos</a>
-      <a data-roles="administrador,directivo,docente" href="calificaciones.html" class="activo" aria-current="page">Calificaciones</a>
+      <a data-roles="administrador,directivo,docente" href="calificaciones.html" class="activo"
+        aria-current="page">Calificaciones</a>
       <a data-roles="administrador" href="admin-bd.html" class="admin">Admin BD</a>
       <a href="index.html" class="salir">Cerrar sesión</a>
     </nav>
@@ -39,7 +51,9 @@
             <label class="campo">Materia<select name="id_dictado"></select></label>
             <label class="campo">Docente<input type="text" id="docente-dictado" readonly></label>
           </div>
-          <p class="ayuda no-imprimir">Solo aparecen las materias que tenés asignadas. Se aprueba con promedio <span id="nota-aprobacion">7</span> o más. Si el alumno faltó al examen, escribí <b>A</b>: se guarda como 0 y cuenta en el promedio.</p>
+          <p class="ayuda no-imprimir">Solo aparecen las materias que tenés asignadas. Se aprueba con promedio <span
+              id="nota-aprobacion">7</span> o más. Si el alumno faltó al examen, escribí <b>A</b>: se guarda como 0 y
+            cuenta en el promedio.</p>
 
           <p class="mensaje oculto" id="mensaje-notas" role="status"></p>
 
@@ -48,12 +62,26 @@
               <thead>
                 <tr class="encabezado-hoja solo-imprimir">
                   <th colspan="6">
-                    <span class="hoja-escuela">Escuela Técnica N.º 4</span>
+                    <div class="hoja-membrete">
+                      <img src="img/logo.jpg" alt="" class="hoja-logo">
+                      <div>
+                        <span class="hoja-escuela">Escuela Industrial N.º 4 "José Menéndez"</span>
+                        <span class="hoja-datos">Bartolomé Mitre 291, Río Gallegos, Santa Cruz · Tel. 02966 42-7707 /
+                          02966 43-5919 · indu4rg@gmail.com · CUE 780021200</span>
+                      </div>
+                    </div>
                     <span class="hoja-titulo"></span>
                     <span class="hoja-detalle"></span>
                   </th>
                 </tr>
-                <tr><th>Alumno</th><th>1.º trimestre</th><th>2.º trimestre</th><th>3.º trimestre</th><th>Promedio</th><th>Condición</th></tr>
+                <tr>
+                  <th>Alumno</th>
+                  <th>1.º trimestre</th>
+                  <th>2.º trimestre</th>
+                  <th>3.º trimestre</th>
+                  <th>Promedio</th>
+                  <th>Condición</th>
+                </tr>
               </thead>
               <tbody>
               </tbody>
@@ -68,4 +96,5 @@
     </div>
   </div>
 </body>
+
 </html>

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ingresar</title>
+  <link rel="icon" href="img/logo.jpg">
+  <title>Ingresar · Escuela Industrial N.º 4</title>.
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilos.css">
@@ -12,8 +13,9 @@
 <body data-pagina="login">
   <div class="pantalla-login">
     <form class="login" id="form-login" novalidate>
-      <div>
-        <div class="login-escuela">ESCUELA TÉCNICA N.º 4</div>
+      <div class="login-cabecera">
+        <img src="img/logo.jpg" alt="Logo de la Escuela Industrial N.º 4" class="logo-login">
+        <div class="login-escuela">Escuela Industrial N.º 4<br>"José Menéndez"</div>
         <h1>Ingresar</h1>
       </div>
       <p class="mensaje error oculto" id="mensaje-login" role="alert"></p>
@@ -25,6 +27,11 @@
       </label>
       <button type="submit" class="boton boton-oscuro">Ingresar</button>
       <p class="nota-al-pie">Según tu rol (administrador, directivo, preceptor o docente) vas a ver distintos módulos.</p>
+      <address class="datos-escuela">
+        Bartolomé Mitre 291, Río Gallegos, Santa Cruz<br>
+        Tel. 02966 42-7707 / 02966 43-5919 · <a href="mailto:indu4rg@gmail.com">indu4rg@gmail.com</a><br>
+        CUE 780021200
+      </address>
     </form>
   </div>
 </body>
