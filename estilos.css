@@ -107,6 +107,16 @@ a:hover { color: var(--link-hover); }
   font-size: 14px;
 }
 
+#usuario-actual {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+#usuario-actual:not(:first-child) {
+  padding-left: 14px;
+  border-left: 2px solid var(--tinta);
+}
+
 main {
   padding: 28px 32px;
   display: flex;

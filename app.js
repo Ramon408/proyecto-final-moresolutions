@@ -101,11 +101,16 @@ function iniciarLogin() {
   });
 }
 
+function mostrarUsuarioActual() {
+  const lugar = $('#usuario-actual');
+  if (!lugar || !USUARIO) return;
+  lugar.textContent = `${USUARIO.nombre || USUARIO.username} · ${NOMBRE_ROL[USUARIO.rol] || USUARIO.rol}`;
+  lugar.title = `Usuario: ${USUARIO.username}`;
+}
 
 async function iniciarInicio() {
   $('#hoy').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   const d = await api('api/inicio.php');
-  $('#usuario-actual').textContent = `${d.usuario.nombre} · ${NOMBRE_ROL[d.usuario.rol]}`;
   $('#ciclo').textContent = d.ciclo;
   $('#dato-presentes').textContent = `Presentes hoy: ${d.presentes_hoy} de ${d.total_docentes}`;
   $('#dato-sin-lista').textContent = `Clases sin lista hoy: ${d.clases_sin_lista}`;
@@ -637,7 +642,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   aplicarPermisos();
   document.body.classList.add('con-sesion');
-
+  mostrarUsuarioActual();
+  
   $('.menu a.salir')?.addEventListener('click', async e => {
     e.preventDefault();
     await api('api/sesion.php', { method: 'DELETE' }).catch(() => {});
