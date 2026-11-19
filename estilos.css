@@ -238,8 +238,7 @@ input[readonly] { background: var(--gris-suave); }
 input[type="radio"] { height: auto; }
 
 input.nota { width: 70px; height: 36px; }
-
-input.nota.ausente { font-weight: 700; color: #a3341f; }
+input.nota.ausente { font-weight: 700; color: #a3341f; } /* A = ausente al examen */
 
 .grilla-3, .grilla-4, .grilla-5 {
   display: grid;
@@ -397,6 +396,37 @@ th { background: var(--gris-menu); }
   font-weight: 700;
   line-height: 1.2;
 }
+
+.opciones-rol {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.opcion-rol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  border: 2px solid var(--tinta);
+  border-radius: 10px;
+  background: var(--blanco);
+  color: var(--tinta);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.opcion-rol:hover, .opcion-rol:focus-visible { background: var(--tinta); color: var(--blanco); }
+.opcion-rol:hover .opcion-rol-detalle, .opcion-rol:focus-visible .opcion-rol-detalle { color: var(--blanco); }
+.opcion-rol.actual { border-width: 3px; }
+
+.opcion-rol-nombre { font-family: var(--fuente-titulo); font-size: 22px; font-weight: 700; }
+.opcion-rol-detalle { font-size: 13px; color: var(--texto-suave); }
+
+.salir-login { align-self: center; font-size: 14px; color: var(--tinta); }
+
+.cambiar-rol { margin-left: 8px; font-weight: 400; color: var(--tinta); }
 
 .datos-escuela {
   padding-top: 14px;

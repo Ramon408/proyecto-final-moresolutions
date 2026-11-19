@@ -5,7 +5,17 @@ require __DIR__ . '/conexion.php';
 ejecutar(function () {
     switch (metodo()) {
         case 'GET':
-            responder(requerirSesion());
+            responder(requerirSesion([], true));
+
+        case 'PUT':
+            
+            $usuario = requerirSesion([], true);
+            $rol = leerJSON()['rol'] ?? '';
+            if (!in_array($rol, $usuario['roles'], true)) {
+                responderError('Ese rol no está asignado a tu usuario.', 403);
+            }
+            $_SESSION['usuario']['rol'] = $rol;
+            responder($_SESSION['usuario']);
 
         case 'POST':
             $datos = leerJSON();
@@ -16,10 +26,9 @@ ejecutar(function () {
             }
 
             $consulta = db()->prepare(
-                'SELECT u.id_usuario, u.username, u.password_hash, u.activo, r.nombre AS rol,
+                'SELECT u.id_usuario, u.username, u.password_hash, u.activo,
                         d.id_docente, d.nombre, d.apellido
                  FROM usuario u
-                 JOIN rol r ON r.id_rol = u.id_rol
                  LEFT JOIN docente d ON d.id_usuario = u.id_usuario
                  WHERE u.username = ?'
             );
@@ -33,11 +42,23 @@ ejecutar(function () {
                 responderError('El usuario está dado de baja. Consultá con el administrador.', 403);
             }
 
+            
+            $consulta = db()->prepare(
+                'SELECT r.nombre FROM usuario_rol ur JOIN rol r ON r.id_rol = ur.id_rol
+                 WHERE ur.id_usuario = ? ORDER BY r.id_rol'
+            );
+            $consulta->execute([$u['id_usuario']]);
+            $roles = $consulta->fetchAll(PDO::FETCH_COLUMN);
+            if (!$roles) {
+                responderError('Tu usuario no tiene ningún rol asignado. Consultá con el administrador.', 403);
+            }
+
             session_regenerate_id(true);
             $_SESSION['usuario'] = [
                 'id_usuario' => (int) $u['id_usuario'],
                 'username'   => $u['username'],
-                'rol'        => $u['rol'],
+                'roles'      => $roles,
+                'rol'        => count($roles) === 1 ? $roles[0] : null, 
                 'id_docente' => $u['id_docente'] ? (int) $u['id_docente'] : null,
                 'nombre'     => $u['id_docente'] ? $u['nombre'] . ' ' . $u['apellido'] : $u['username'],
             ];

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="img/logo.jpg">
+  <title>Elegir rol · Escuela Industrial N.º 4</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+  <script src="app.js" defer></script>
+</head>
+<body data-pagina="elegir-rol">
+  <div class="pantalla-login">
+    <div class="login">
+      <div class="login-cabecera">
+        <img src="img/logo.jpg" alt="Logo de la Escuela Industrial N.º 4" class="logo-login">
+        <div class="login-escuela">Escuela Industrial N.º 4<br>"José Menéndez"</div>
+        <h1>¿Con qué rol ingresás?</h1>
+      </div>
+      <p class="mensaje error oculto" id="mensaje-rol" role="alert"></p>
+      <p class="nota-al-pie">Hola, <b id="nombre-usuario"></b>. Tu usuario tiene más de un rol en la escuela. Elegí con cuál querés trabajar; después lo podés cambiar desde arriba a la derecha.</p>
+      <div class="opciones-rol" id="opciones-rol"></div>
+      <a href="#" class="salir-login" id="salir-rol">Cerrar sesión</a>
+    </div>
+  </div>
+</body>
+</html>

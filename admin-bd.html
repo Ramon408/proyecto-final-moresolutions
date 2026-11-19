@@ -38,7 +38,6 @@
   </div>
 
   <script>
-    
     let tablaActual = 'docente';
     let datos = null;        
     let idEditando = null;
@@ -58,7 +57,15 @@
       } catch {
         throw new Error('No se pudo conectar con el servidor. Abrí el sistema desde http://localhost con Apache y MySQL iniciados.');
       }
-      const json = await r.json().catch(() => ({}));
+      const texto = await r.text();
+      let json;
+      try {
+        json = JSON.parse(texto);
+      } catch {
+        throw new Error(texto.trimStart().startsWith('<?php')
+          ? 'El servidor devolvió el código PHP sin ejecutarlo. Abrí el sistema desde Apache de XAMPP.'
+          : 'El servidor no respondió con datos válidos: ' + texto.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300));
+      }
       if (!r.ok) throw new Error(json.error || 'Error del servidor.');
       return json;
     }
@@ -84,7 +91,10 @@
       e.preventDefault();
       const f = e.target;
       try {
-        const u = await api('api/sesion.php', { method: 'POST', body: { usuario: f.usuario.value, password: f.password.value } });
+        let u = await api('api/sesion.php', { method: 'POST', body: { usuario: f.usuario.value, password: f.password.value } });
+        if (u.rol !== 'administrador' && u.roles?.includes('administrador')) {
+          u = await api('api/sesion.php', { method: 'PUT', body: { rol: 'administrador' } });
+        }
         if (u.rol !== 'administrador') throw new Error('Solo el usuario administrador puede entrar a este panel.');
         await mostrarPanel(u);
       } catch (err) {
@@ -118,7 +128,6 @@
 
     function dibujarFormulario(fila) {
       $('titulo-form').textContent = fila ? `Editar registro ${datos.clave} = ${fila[datos.clave]}` : 'Nuevo registro';
-      
       const campos = datos.columnas.slice(1).map(c =>
         `${c.nombre} <input type="text" name="${c.nombre}" value="${fila && fila[c.nombre] !== null ? esc(fila[c.nombre]) : ''}" placeholder="${c.tipo}${c.nulo ? ' (opcional)' : ''}"><br>`).join('');
       const ayuda = tablaActual === 'usuario' ? '<p>En password_hash podés escribir una contraseña nueva: se guarda cifrada.</p>' : '';

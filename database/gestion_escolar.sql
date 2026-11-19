@@ -7,6 +7,7 @@ CREATE DATABASE gestion_escolar CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci
 USE gestion_escolar;
 
 
+
 CREATE TABLE rol (
   id_rol INT AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(30) NOT NULL UNIQUE
@@ -16,9 +17,17 @@ CREATE TABLE usuario (
   id_usuario    INT AUTO_INCREMENT PRIMARY KEY,
   username      VARCHAR(30) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
-  id_rol        INT NOT NULL,
-  activo        BOOLEAN NOT NULL DEFAULT TRUE,
-  CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES rol (id_rol)
+  activo        BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+
+CREATE TABLE usuario_rol (
+  id_usuario_rol INT AUTO_INCREMENT PRIMARY KEY,
+  id_usuario     INT NOT NULL,
+  id_rol         INT NOT NULL,
+  CONSTRAINT fk_usuario_rol_usuario FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario) ON DELETE CASCADE,
+  CONSTRAINT fk_usuario_rol_rol FOREIGN KEY (id_rol) REFERENCES rol (id_rol),
+  CONSTRAINT uq_usuario_rol UNIQUE (id_usuario, id_rol)
 );
 
 
@@ -164,19 +173,24 @@ CREATE TABLE calificacion (
   CONSTRAINT fk_calif_dictado FOREIGN KEY (id_dictado) REFERENCES dictado (id_dictado),
   CONSTRAINT uq_calificacion UNIQUE (id_alumno, id_dictado, instancia),
   CONSTRAINT chk_calif_instancia CHECK (instancia IN ('1.º trimestre', '2.º trimestre', '3.º trimestre', 'diciembre', 'febrero', 'final')),
-  CONSTRAINT chk_calif_nota CHECK (nota = 0 OR nota BETWEEN 1 AND 10)
+  CONSTRAINT chk_calif_nota CHECK (nota = 0 OR nota BETWEEN 1 AND 10) -- 0 = ausente al examen
 );
 
 
 INSERT INTO rol (id_rol, nombre) VALUES
   (1, 'administrador'), (2, 'directivo'), (3, 'preceptor'), (4, 'docente');
 
-INSERT INTO usuario (id_usuario, username, password_hash, id_rol, activo) VALUES
-  (1, 'admin',      '$2y$10$8a.58uxKfcAFp2FRS/lG7uxVyBciTPeBuVwxMe.x3XQty.fq1W096', 1, TRUE),
-  (2, 'lfernandez', '$2y$10$88.drnRAYkn0llNXyxG7yuipYRpqbmZwVdh5Q2rH3dqgrLvxGwV/W', 2, TRUE),
-  (3, 'nsosa',      '$2y$10$88.drnRAYkn0llNXyxG7yuipYRpqbmZwVdh5Q2rH3dqgrLvxGwV/W', 3, TRUE),
-  (4, 'gperalta',   '$2y$10$88.drnRAYkn0llNXyxG7yuipYRpqbmZwVdh5Q2rH3dqgrLvxGwV/W', 4, TRUE),
-  (5, 'crios',      '$2y$10$88.drnRAYkn0llNXyxG7yuipYRpqbmZwVdh5Q2rH3dqgrLvxGwV/W', 4, TRUE);
+
+INSERT INTO usuario (id_usuario, username, password_hash, activo) VALUES
+  (1, 'admin',      '$2y$10$8a.58uxKfcAFp2FRS/lG7uxVyBciTPeBuVwxMe.x3XQty.fq1W096', TRUE),
+  (2, 'lfernandez', '$2y$10$88.drnRAYkn0llNXyxG7yuipYRpqbmZwVdh5Q2rH3dqgrLvxGwV/W', TRUE),
+  (3, 'nsosa',      '$2y$10$88.drnRAYkn0llNXyxG7yuipYRpqbmZwVdh5Q2rH3dqgrLvxGwV/W', TRUE),
+  (4, 'gperalta',   '$2y$10$88.drnRAYkn0llNXyxG7yuipYRpqbmZwVdh5Q2rH3dqgrLvxGwV/W', TRUE),
+  (5, 'crios',      '$2y$10$88.drnRAYkn0llNXyxG7yuipYRpqbmZwVdh5Q2rH3dqgrLvxGwV/W', TRUE);
+
+
+INSERT INTO usuario_rol (id_usuario, id_rol) VALUES
+  (1, 1), (2, 2), (3, 3), (4, 4), (5, 4), (5, 3);
 
 INSERT INTO docente (id_docente, dni, nombre, apellido, email, telefono, id_usuario) VALUES
   (1, 28123456, 'Gustavo',  'Peralta', 'gperalta@escuela.edu.ar', '11-4555-1234', 4),
@@ -187,15 +201,15 @@ INSERT INTO docente (id_docente, dni, nombre, apellido, email, telefono, id_usua
   (6, 26678901, 'Hernán',   'Ramírez', NULL, NULL, NULL);
 
 INSERT INTO alumno (id_alumno, dni, nombre, apellido, fecha_nac, email, id_usuario) VALUES
-  (1,  47123456, 'Mario',    'Acosta',    '2013-03-14', NULL, NULL),
-  (2,  47234567, 'Lucas',    'Benítez',   '2013-07-02', NULL, NULL),
-  (3,  47345678, 'Sofía',    'Castro',    '2013-11-21', NULL, NULL),
-  (4,  47456789, 'Valentina','Díaz',      '2013-05-09', NULL, NULL),
-  (5,  47567890, 'Tomás',    'Gómez',     '2013-08-30', NULL, NULL),
-  (6,  47678901, 'Camila',   'López',     '2013-01-17', NULL, NULL),
-  (7,  47789012, 'Lautaro',  'Ortiz',     '2013-06-25', NULL, NULL),
-  (8,  47890123, 'Agustina', 'Molina',    '2013-10-03', NULL, NULL),
-  (9,  47901234, 'Bruno',    'Navarro',   '2013-12-12', NULL, NULL),
+  (1, 47123456, 'Mario',    'Acosta',    '2013-03-14', NULL, NULL),
+  (2, 47234567, 'Lucas',    'Benítez',   '2013-07-02', NULL, NULL),
+  (3, 47345678, 'Sofía',    'Castro',    '2013-11-21', NULL, NULL),
+  (4, 47456789, 'Valentina','Díaz',      '2013-05-09', NULL, NULL),
+  (5, 47567890, 'Tomás',    'Gómez',     '2013-08-30', NULL, NULL),
+  (6, 47678901, 'Camila',   'López',     '2013-01-17', NULL, NULL),
+  (7, 47789012, 'Lautaro',  'Ortiz',     '2013-06-25', NULL, NULL),
+  (8, 47890123, 'Agustina', 'Molina',    '2013-10-03', NULL, NULL),
+  (9, 47901234, 'Bruno',    'Navarro',   '2013-12-12', NULL, NULL),
   (10, 46789012, 'Julián',   'Fernández', '2012-04-19', NULL, NULL),
   (11, 46890123, 'Martina',  'Herrera',   '2012-09-07', NULL, NULL),
   (12, 45901234, 'Nicolás',  'Ibarra',    '2011-02-28', NULL, NULL);
@@ -224,12 +238,12 @@ INSERT INTO curso (id_curso, id_plan, anio, division, turno, ciclo_lectivo) VALU
 INSERT INTO inscripcion (id_alumno, id_curso, fecha, estado) VALUES
   (1, 1, '2026-02-20', 'regular'), (2, 1, '2026-02-20', 'regular'), (3, 1, '2026-02-20', 'regular'),
   (4, 1, '2026-02-21', 'regular'), (5, 1, '2026-02-21', 'regular'), (6, 1, '2026-02-23', 'regular'),
-  (7, 1, '2026-02-23', 'pase'),
+  (7, 1, '2026-02-23', 'pase'), -- ver el UPDATE de abajo: fecha y motivo del pase
   (8, 2, '2026-02-20', 'regular'), (9, 2, '2026-02-20', 'regular'),
   (10, 3, '2026-02-19', 'regular'), (11, 3, '2026-02-19', 'regular'),
   (12, 4, '2026-02-18', 'regular');
-
 UPDATE inscripcion SET fecha_estado = '2026-06-15', motivo_estado = 'Pase a otra escuela por mudanza' WHERE id_alumno = 7 AND id_curso = 1;
+
 
 INSERT INTO dictado (id_dictado, id_curso, id_materia, id_docente) VALUES
   (1, 1, 1, 1),  (2, 1, 2, 3),  (3, 1, 3, NULL), (4, 1, 4, 2),
@@ -264,7 +278,6 @@ INSERT INTO clase (id_clase, id_dictado, fecha, tema) VALUES
   (7, 1, '2026-10-14', 'Ecuaciones de primer grado'),
   (8, 1, '2026-10-19', 'Problemas con ecuaciones');
 
-
 INSERT INTO asistencia_alumno (id_clase, id_alumno, estado)
   SELECT c.id_clase, a.id_alumno, 'P'
   FROM clase c CROSS JOIN alumno a
@@ -273,7 +286,6 @@ INSERT INTO asistencia_alumno (id_clase, id_alumno, estado)
 UPDATE asistencia_alumno SET estado = 'A' WHERE (id_alumno = 2 AND id_clase IN (2, 6)) OR (id_alumno = 5 AND id_clase IN (1, 5));
 UPDATE asistencia_alumno SET estado = 'T' WHERE (id_alumno = 3 AND id_clase = 4) OR (id_alumno = 4 AND id_clase = 7) OR (id_alumno = 5 AND id_clase = 8);
 UPDATE asistencia_alumno SET estado = 'J' WHERE id_alumno = 4 AND id_clase = 3;
-
 
 INSERT INTO calificacion (id_alumno, id_dictado, instancia, nota, fecha) VALUES
   (1, 1, '1.º trimestre', 8, '2026-05-29'), (1, 1, '2.º trimestre', 7, '2026-08-28'), (1, 1, '3.º trimestre', 9, '2026-10-16'),

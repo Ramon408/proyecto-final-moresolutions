@@ -4,6 +4,12 @@ const $$ = (sel, raiz = document) => [...raiz.querySelectorAll(sel)];
 let USUARIO = null;
 
 const NOMBRE_ROL = { administrador: 'Administrador', directivo: 'Directivo', preceptor: 'Preceptor', docente: 'Docente' };
+const DESCRIPCION_ROL = {
+  administrador: 'Todo el sistema y el panel de la base de datos',
+  directivo: 'Planes, materias, cursos y asignación de docentes',
+  preceptor: 'Inscripciones y asistencia de docentes y alumnos',
+  docente: 'Asistencia y notas de tus materias',
+};
 const INSTANCIAS = ['1.º trimestre', '2.º trimestre', '3.º trimestre'];
 
 
@@ -15,7 +21,7 @@ function hoyISO() {
 }
 
 function esFinDeSemana(fecha) {
-  const dia = new Date(`${fecha}T12:00:00`).getDay();
+  const dia = new Date(`${fecha}T12:00:00`).getDay(); 
   return dia === 0 || dia === 6;
 }
 
@@ -64,16 +70,28 @@ async function api(url, { method = 'GET', body } = {}) {
   } catch {
     throw new Error('No se pudo conectar con el servidor. Abrí el sistema desde http://localhost con Apache y MySQL iniciados.');
   }
-  const datos = await respuesta.json().catch(() => ({}));
+  const texto = await respuesta.text();
+  let datos;
+  try {
+    datos = JSON.parse(texto);
+  } catch {
+    const resumen = texto.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300);
+    const error = new Error(texto.trimStart().startsWith('<?php')
+      ? 'El servidor devolvió el código PHP sin ejecutarlo. Abrí el sistema desde Apache de XAMPP (http://localhost/...), no desde otro servidor.'
+      : `El servidor no respondió con datos válidos (${url}). Respuesta: ${resumen || 'vacía'}`);
+    error.status = respuesta.status;
+    throw error;
+  }
   if (respuesta.status === 401 && document.body.dataset.pagina !== 'login' && url !== 'api/sesion.php') {
     window.location.href = 'index.html';
   }
   if (!respuesta.ok) {
-    throw new Error(datos.error || `Error del servidor (${respuesta.status}).`);
+    const error = new Error(datos.error || `Error del servidor (${respuesta.status}).`);
+    error.status = respuesta.status;
+    throw error;
   }
   return datos;
 }
-
 
 function aplicarPermisos(raiz = document) {
   $$('[data-roles]', raiz).forEach(el => {
@@ -93,11 +111,39 @@ function iniciarLogin() {
       return;
     }
     try {
-      await api('api/sesion.php', { method: 'POST', body: { usuario, password } });
+      const u = await api('api/sesion.php', { method: 'POST', body: { usuario, password } });
+      if (!u.roles?.length) throw new Error('El servidor no devolvió los roles del usuario. Revisá que la base esté importada.');
+      window.location.href = u.rol ? 'inicio.html' : 'elegir-rol.html';
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
+  });
+}
+
+function iniciarElegirRol() {
+  const msg = $('#mensaje-rol');
+  $('#nombre-usuario').textContent = USUARIO.nombre || USUARIO.username;
+  $('#opciones-rol').innerHTML = USUARIO.roles.map(r =>
+    `<button type="button" class="opcion-rol${r === USUARIO.rol ? ' actual' : ''}" data-rol="${r}">
+       <span class="opcion-rol-nombre">${NOMBRE_ROL[r] || r}</span>
+       <span class="opcion-rol-detalle">${DESCRIPCION_ROL[r] || ''}</span>
+     </button>`).join('');
+
+  $('#opciones-rol').addEventListener('click', async e => {
+    const b = e.target.closest('[data-rol]');
+    if (!b) return;
+    try {
+      await api('api/sesion.php', { method: 'PUT', body: { rol: b.dataset.rol } });
       window.location.href = 'inicio.html';
     } catch (err) {
       mostrarMensaje(msg, err.message, 'error');
     }
+  });
+
+  $('#salir-rol').addEventListener('click', async e => {
+    e.preventDefault();
+    await api('api/sesion.php', { method: 'DELETE' }).catch(() => {});
+    window.location.href = 'index.html';
   });
 }
 
@@ -106,6 +152,9 @@ function mostrarUsuarioActual() {
   if (!lugar || !USUARIO) return;
   lugar.textContent = `${USUARIO.nombre || USUARIO.username} · ${NOMBRE_ROL[USUARIO.rol] || USUARIO.rol}`;
   lugar.title = `Usuario: ${USUARIO.username}`;
+  if (USUARIO.roles.length > 1) {
+    lugar.insertAdjacentHTML('beforeend', ' <a href="elegir-rol.html" class="cambiar-rol">Cambiar rol</a>');
+  }
 }
 
 function prepararEncabezadoHoja(tabla, titulo, detalle) {
@@ -687,6 +736,7 @@ function iniciarCalificaciones() {
   });
 }
 
+
 document.addEventListener('DOMContentLoaded', async () => {
   const inicios = {
     inicio: iniciarInicio,
@@ -705,9 +755,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   try {
     USUARIO = await api('api/sesion.php');
+    if (!USUARIO.roles?.length) throw new Error('El servidor no devolvió los roles del usuario.');
   } catch (err) {
-    if (err.message.startsWith('No se pudo conectar')) alert(err.message);
+    if (err.status !== 401) alert(err.message);
     window.location.href = 'index.html';
+    return;
+  }
+
+  if (pagina === 'elegir-rol') {
+    if (USUARIO.roles.length === 1) { window.location.href = 'inicio.html'; return; }
+    iniciarElegirRol();
+    return;
+  }
+
+  if (!USUARIO.rol) {
+    window.location.href = 'elegir-rol.html';
     return;
   }
   aplicarPermisos();
@@ -716,7 +778,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   $('.menu a.salir')?.addEventListener('click', async e => {
     e.preventDefault();
-    await api('api/sesion.php', { method: 'DELETE' }).catch(() => { });
+    await api('api/sesion.php', { method: 'DELETE' }).catch(() => {});
     window.location.href = 'index.html';
   });
 

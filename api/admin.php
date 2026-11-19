@@ -2,7 +2,7 @@
 
 require __DIR__ . '/conexion.php';
 
-const TABLAS = ['rol', 'usuario', 'docente', 'alumno', 'plan_estudio', 'materia', 'curso', 'dictado',
+const TABLAS = ['rol', 'usuario', 'usuario_rol', 'docente', 'alumno', 'plan_estudio', 'materia', 'curso', 'dictado',
                 'horario', 'inscripcion', 'clase', 'asistencia_alumno', 'asistencia_docente', 'calificacion'];
 
 function columnas(string $tabla): array
@@ -56,7 +56,9 @@ ejecutar(function () {
             responder([
                 'tabla'    => $tabla,
                 'clave'    => $pk,
-                'columnas' => array_map(fn ($c) => ['nombre' => $c['Field'], 'tipo' => $c['Type'], 'nulo' => $c['Null'] === 'YES'], $columnas),
+                'columnas' => array_map(function ($c) {
+                    return ['nombre' => $c['Field'], 'tipo' => $c['Type'], 'nulo' => $c['Null'] === 'YES'];
+                }, $columnas),
                 'filas'    => $filas,
             ]);
 
@@ -69,8 +71,10 @@ ejecutar(function () {
 
         case 'PUT':
             $valores = valoresDe($tabla, $columnas, leerJSON()['datos'] ?? []);
-            $asignaciones = implode(', ', array_map(fn ($c) => "`$c` = ?", array_keys($valores)));
-            db()->prepare("UPDATE `$tabla` SET $asignaciones WHERE `$pk` = ?")->execute([...array_values($valores), $id]);
+            $asignaciones = implode(', ', array_map(function ($c) {
+                return "`$c` = ?";
+            }, array_keys($valores)));
+            db()->prepare("UPDATE `$tabla` SET $asignaciones WHERE `$pk` = ?")->execute(array_merge(array_values($valores), [$id]));
             responder(['ok' => true]);
 
         case 'DELETE':
