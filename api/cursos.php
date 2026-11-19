@@ -49,7 +49,8 @@ ejecutar(function () {
         }, $consulta->fetchAll());
 
         $consulta = db()->prepare(
-            'SELECT a.id_alumno, a.dni, a.apellido, a.nombre, i.estado
+            'SELECT i.id_inscripcion, a.id_alumno, a.dni, a.apellido, a.nombre, i.estado, i.fecha AS fecha_inscripcion,
+                    i.fecha_estado, i.motivo_estado
              FROM inscripcion i JOIN alumno a ON a.id_alumno = i.id_alumno
              WHERE i.id_curso = ? ORDER BY a.apellido, a.nombre'
         );

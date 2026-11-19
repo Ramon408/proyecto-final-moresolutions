@@ -88,6 +88,8 @@ CREATE TABLE inscripcion (
   id_curso       INT NOT NULL,
   fecha          DATE NOT NULL,
   estado         VARCHAR(15) NOT NULL DEFAULT 'regular',
+  fecha_estado   DATE NULL,          
+  motivo_estado  VARCHAR(150) NULL,  
   CONSTRAINT fk_inscripcion_alumno FOREIGN KEY (id_alumno) REFERENCES alumno (id_alumno),
   CONSTRAINT fk_inscripcion_curso FOREIGN KEY (id_curso) REFERENCES curso (id_curso),
   CONSTRAINT uq_inscripcion UNIQUE (id_alumno, id_curso),
@@ -227,6 +229,7 @@ INSERT INTO inscripcion (id_alumno, id_curso, fecha, estado) VALUES
   (10, 3, '2026-02-19', 'regular'), (11, 3, '2026-02-19', 'regular'),
   (12, 4, '2026-02-18', 'regular');
 
+UPDATE inscripcion SET fecha_estado = '2026-06-15', motivo_estado = 'Pase a otra escuela por mudanza' WHERE id_alumno = 7 AND id_curso = 1;
 
 INSERT INTO dictado (id_dictado, id_curso, id_materia, id_docente) VALUES
   (1, 1, 1, 1),  (2, 1, 2, 3),  (3, 1, 3, NULL), (4, 1, 4, 2),

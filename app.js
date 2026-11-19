@@ -292,10 +292,16 @@ function iniciarCursos() {
     }).join('') || '<tr><td colspan="3">El curso no tiene materias.</td></tr>';
 
     const regulares = alumnos.filter(a => a.estado === 'regular').length;
-    $('#tabla-inscriptos tbody').innerHTML = alumnos.map(a =>
-      `<tr><td>${esc(a.dni)}</td><td>${esc(a.apellido)}, ${esc(a.nombre)}</td>
-       <td><span class="etiqueta${a.estado === 'regular' ? ' ok' : ' alerta'}">${esc(a.estado[0].toUpperCase() + a.estado.slice(1))}</span></td></tr>`).join('')
-      || '<tr><td colspan="3">Todavía no hay alumnos inscriptos.</td></tr>';
+    alumnosCurso = alumnos;
+    $('#form-estado').classList.add('oculto');
+    $('#tabla-inscriptos tbody').innerHTML = alumnos.map(a => {
+      const detalle = a.fecha_estado
+        ? `<div class="ayuda">Desde ${fechaArg(a.fecha_estado)}${a.motivo_estado ? ' · ' + esc(a.motivo_estado) : ''}</div>` : '';
+      return `<tr><td>${esc(a.dni)}</td><td>${esc(a.apellido)}, ${esc(a.nombre)}</td>
+       <td><span class="etiqueta${a.estado === 'regular' ? ' ok' : ' alerta'}">${esc(a.estado[0].toUpperCase() + a.estado.slice(1))}</span>${detalle}</td>
+       ${puedeCambiarEstado ? `<td><button type="button" class="boton" data-inscripcion="${a.id_inscripcion}">Cambiar estado</button></td>` : ''}</tr>`;
+    }).join('')
+      || `<tr><td colspan="${puedeCambiarEstado ? 4 : 3}">Todavía no hay alumnos inscriptos.</td></tr>`;
     $('#cantidad-inscriptos').textContent = regulares;
 
     const sinDocente = dictados.filter(d => !d.id_docente).length;
@@ -333,6 +339,47 @@ function iniciarCursos() {
     p.setAttribute('aria-selected', 'true');
     $$('.panel-pestana').forEach(panel => panel.classList.toggle('oculto', panel.id !== p.dataset.panel));
   }));
+
+  const puedeCambiarEstado = puede(['administrador', 'directivo', 'preceptor']);
+  let alumnosCurso = [];
+  const formEstado = $('#form-estado');
+  let inscripcionEditada = null;
+
+  $('#tabla-inscriptos').addEventListener('click', e => {
+    const b = e.target.closest('[data-inscripcion]');
+    if (!b) return;
+    const a = alumnosCurso.find(x => x.id_inscripcion === Number(b.dataset.inscripcion));
+    inscripcionEditada = a.id_inscripcion;
+    $('#estado-alumno').textContent = `${a.apellido}, ${a.nombre} (hoy: ${a.estado})`;
+    formEstado.estado.value = a.estado === 'regular' ? 'baja' : 'regular';
+    formEstado.fecha.value = hoyISO();
+    formEstado.fecha.max = hoyISO();
+    formEstado.fecha.min = a.fecha_inscripcion;
+    formEstado.motivo.value = '';
+    formEstado.classList.remove('oculto');
+    formEstado.estado.focus();
+  });
+
+  $('#btn-cancelar-estado').addEventListener('click', () => formEstado.classList.add('oculto'));
+
+  formEstado.addEventListener('submit', async e => {
+    e.preventDefault();
+    const estado = formEstado.estado.value;
+    if (estado !== 'regular' && !formEstado.motivo.value.trim()) {
+      mostrarMensaje(msg, 'Escribí el motivo del pase o de la baja.', 'error');
+      return;
+    }
+    try {
+      await api(`api/inscripciones.php?id=${inscripcionEditada}`, {
+        method: 'PUT',
+        body: { estado, fecha: formEstado.fecha.value, motivo: formEstado.motivo.value },
+      });
+      mostrarMensaje(msg, `El alumno quedó como ${estado}.`);
+      await dibujarCurso();
+    } catch (err) {
+      mostrarMensaje(msg, err.message, 'error');
+    }
+  });
 
   const formIns = $('#form-inscribir');
   $('#btn-inscribir').addEventListener('click', () => { formIns.classList.toggle('oculto'); formIns.dni.focus(); });
@@ -666,10 +713,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   aplicarPermisos();
   document.body.classList.add('con-sesion');
   mostrarUsuarioActual();
-  
+
   $('.menu a.salir')?.addEventListener('click', async e => {
     e.preventDefault();
-    await api('api/sesion.php', { method: 'DELETE' }).catch(() => {});
+    await api('api/sesion.php', { method: 'DELETE' }).catch(() => { });
     window.location.href = 'index.html';
   });
 

@@ -451,6 +451,8 @@ th { background: var(--gris-menu); }
 
 .marca-asistencia { font-size: 18px; font-weight: 700; }
 
+#tabla-inscriptos .boton { white-space: nowrap; padding: 6px 12px; font-size: 13px; }
+
 .boton:disabled {
   opacity: 0.4;
   cursor: not-allowed;

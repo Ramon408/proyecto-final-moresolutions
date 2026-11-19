@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="img/logo.jpg">
   <title>Cursos y asignaciones</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="estilos.css">
   <script src="app.js" defer></script>
 </head>
+
 <body data-pagina="cursos">
   <div class="app">
     <nav class="menu" aria-label="Menú principal">
@@ -35,7 +39,8 @@
         <h1>Cursos y asignaciones</h1>
         <div class="encabezado-acciones">
           <label class="campo-linea">Ciclo lectivo<select id="ciclo"></select></label>
-          <button type="button" class="boton boton-oscuro" id="btn-nuevo-curso" data-roles="administrador,directivo">+ Nuevo curso</button>
+          <button type="button" class="boton boton-oscuro" id="btn-nuevo-curso" data-roles="administrador,directivo">+
+            Nuevo curso</button>
           <span id="usuario-actual"></span>
         </div>
       </header>
@@ -47,9 +52,25 @@
 
           <form class="caja-punteada oculto" id="form-curso">
             <div class="subtitulo">Nuevo curso</div>
-            <label class="campo">Año<select name="anio"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option></select></label>
-            <label class="campo">División<select name="division"><option>A</option><option>B</option><option>C</option></select></label>
-            <label class="campo">Turno<select name="turno"><option>Mañana</option><option>Tarde</option><option>Noche</option></select></label>
+            <label class="campo">Año<select name="anio">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+              </select></label>
+            <label class="campo">División<select name="division">
+                <option>A</option>
+                <option>B</option>
+                <option>C</option>
+              </select></label>
+            <label class="campo">Turno<select name="turno">
+                <option>Mañana</option>
+                <option>Tarde</option>
+                <option>Noche</option>
+              </select></label>
             <div class="fila">
               <button type="submit" class="boton boton-oscuro">Crear</button>
               <button type="button" class="boton" id="btn-cancelar-curso">Cancelar</button>
@@ -62,8 +83,10 @@
           <div style="font-size: 16px;" id="titulo-curso"></div>
 
           <div class="pestanas" role="tablist">
-            <button type="button" class="pestana activa" role="tab" aria-selected="true" data-panel="panel-materias">Materias y docentes</button>
-            <button type="button" class="pestana" role="tab" aria-selected="false" data-panel="panel-alumnos">Alumnos inscriptos (<span id="cantidad-inscriptos">0</span>)</button>
+            <button type="button" class="pestana activa" role="tab" aria-selected="true"
+              data-panel="panel-materias">Materias y docentes</button>
+            <button type="button" class="pestana" role="tab" aria-selected="false" data-panel="panel-alumnos">Alumnos
+              inscriptos (<span id="cantidad-inscriptos">0</span>)</button>
           </div>
 
           <section id="panel-materias" class="panel-pestana columna-principal" role="tabpanel">
@@ -71,7 +94,11 @@
             <div class="tabla-scroll">
               <table id="tabla-dictados">
                 <thead>
-                  <tr><th>Materia</th><th>Docente asignado</th><th>Horario</th></tr>
+                  <tr>
+                    <th>Materia</th>
+                    <th>Docente asignado</th>
+                    <th>Horario</th>
+                  </tr>
                 </thead>
                 <tbody></tbody>
               </table>
@@ -81,29 +108,60 @@
           <section id="panel-alumnos" class="panel-pestana columna-principal oculto" role="tabpanel">
             <div class="fila-entre">
               <div class="subtitulo">Alumnos del curso</div>
-              <button type="button" class="boton" id="btn-inscribir" data-roles="administrador,directivo,preceptor">+ Inscribir alumno</button>
+              <button type="button" class="boton" id="btn-inscribir" data-roles="administrador,directivo,preceptor">+
+                Inscribir alumno</button>
             </div>
             <form class="caja-punteada oculto" id="form-inscribir">
               <div class="grilla-4">
-                <label class="campo">DNI<input type="text" name="dni" inputmode="numeric" maxlength="8" required></label>
-                <label class="campo">Apellido y nombre<input type="text" name="alumno" placeholder="Apellido, Nombre"></label>
+                <label class="campo">DNI<input type="text" name="dni" inputmode="numeric" maxlength="8"
+                    required></label>
+                <label class="campo">Apellido y nombre<input type="text" name="alumno"
+                    placeholder="Apellido, Nombre"></label>
                 <label class="campo">Fecha de nacimiento<input type="date" name="fecha_nac"></label>
                 <button type="submit" class="boton boton-oscuro">Inscribir</button>
               </div>
-              <p class="ayuda">Si el DNI ya está cargado, alcanza con el DNI. Para un alumno nuevo completá también el nombre y la fecha de nacimiento.</p>
+              <p class="ayuda">Si el DNI ya está cargado, alcanza con el DNI. Para un alumno nuevo completá también el
+                nombre y la fecha de nacimiento.</p>
             </form>
             <div class="tabla-scroll">
               <table id="tabla-inscriptos">
                 <thead>
-                  <tr><th>DNI</th><th>Alumno</th><th>Estado</th></tr>
+                  <tr>
+                    <th>DNI</th>
+                    <th>Alumno</th>
+                    <th>Estado</th>
+                    <th data-roles="administrador,directivo,preceptor"></th>
+                  </tr>
                 </thead>
                 <tbody></tbody>
               </table>
             </div>
+            <form class="caja-punteada oculto" id="form-estado">
+              <div class="subtitulo" style="font-size: 16px;">Cambiar estado de <span id="estado-alumno"></span></div>
+              <div class="grilla-4">
+                <label class="campo">Estado nuevo
+                  <select name="estado" required>
+                    <option value="regular">Regular</option>
+                    <option value="pase">Pase</option>
+                    <option value="baja">Baja</option>
+                  </select>
+                </label>
+                <label class="campo">Fecha<input type="date" name="fecha" required></label>
+                <label class="campo">Motivo<input type="text" name="motivo" maxlength="150"
+                    placeholder="Ej: se mudó de ciudad"></label>
+                <div class="fila">
+                  <button type="submit" class="boton boton-oscuro">Guardar</button>
+                  <button type="button" class="boton" id="btn-cancelar-estado">Cancelar</button>
+                </div>
+              </div>
+              <p class="ayuda">El alumno no se borra: deja de aparecer en las listas de asistencia y de notas, pero se
+                conservan las que ya tenía. El motivo es obligatorio para el pase y la baja.</p>
+            </form>
           </section>
         </div>
       </main>
     </div>
   </div>
 </body>
+
 </html>
